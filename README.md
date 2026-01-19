@@ -46,8 +46,8 @@ The system is browser-first but not bound to the browser, supporting offline-fir
 1. **Clone the repository:**
 
 ```bash
-git clone https://github.com/IAMChainJC/I-AM-Decentralized.git
-cd I-AM-Decentralized
+git clone https://github.com/I-AM-Xhe/I-AM-Xhe.git
+cd I-AM-Xhe
 
 	2.	Open a module in your browser (no server required):
 
