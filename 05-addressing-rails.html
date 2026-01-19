@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I·AM·Xhe — Addressing Rails</title>
+  <link rel="stylesheet" href="css/core.css">
+</head>
+<body>
+  <div class="scanline-overlay"></div>
+  
+  <button class="mobile-toggle" onclick="XheNav.toggleMobileNav()" data-testid="mobile-nav-toggle">☰</button>
+  
+  <div class="xhe-shell">
+    <aside class="xhe-sidebar">
+      <a href="99-constitution.html" class="xhe-logo" data-testid="logo">I·AM·Xhe</a>
+      <nav class="xhe-nav" id="xhe-nav"></nav>
+    </aside>
+    
+    <main class="xhe-main" data-testid="addressing-main">
+      <header class="xhe-page-header">
+        <h1 class="xhe-page-title">05 — Addressing Rails</h1>
+        <p class="xhe-page-subtitle">Address-as-URL deterministic routing</p>
+      </header>
+      
+      <div class="xhe-alert" data-testid="addressing-info">
+        Addressing in I·AM·Xhe uses content-addressed URIs. Every piece of data has a unique, 
+        deterministic address derived from its content hash.
+      </div>
+      
+      <section class="xhe-grid">
+        <div class="xhe-panel" data-testid="uri-schemes-panel">
+          <h2 class="xhe-panel-title">URI Schemes</h2>
+          <ul class="xhe-list">
+            <li class="xhe-list-item">
+              <span>xhe://</span>
+              <span class="xhe-tag xhe-tag--cyan">CONTENT</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>did:xhe:</span>
+              <span class="xhe-tag xhe-tag--green">IDENTITY</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>ipfs://</span>
+              <span class="xhe-tag xhe-tag--purple">STORAGE</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>pulse://</span>
+              <span class="xhe-tag xhe-tag--cyan">PULSAR</span>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="xhe-panel" data-testid="routing-rules-panel">
+          <h2 class="xhe-panel-title">Routing Rules</h2>
+          <ul class="xhe-list">
+            <li class="xhe-list-item">
+              <span>Content → Hash</span>
+              <span class="text-green">Deterministic</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Identity → DID</span>
+              <span class="text-green">Deterministic</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Pulsar → Index</span>
+              <span class="text-green">Deterministic</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Location → None</span>
+              <span class="text-red">N/A</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="address-generator-panel">
+        <h2 class="xhe-panel-title">Address Generator</h2>
+        <p class="text-secondary mb-md">
+          Generate content-addressed URIs from any data. The same content always produces the same address.
+        </p>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Content</label>
+          <textarea class="xhe-textarea" id="address-content" data-testid="address-content-input"
+                    placeholder="Enter content to generate address..."></textarea>
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Namespace</label>
+          <select class="xhe-input" id="address-namespace" data-testid="namespace-select" style="background: var(--bg-void);">
+            <option value="xhe">xhe:// (Content)</option>
+            <option value="pulse">pulse:// (Pulsar)</option>
+            <option value="ipfs">ipfs:// (Storage)</option>
+          </select>
+        </div>
+        
+        <button class="xhe-btn xhe-btn--green" onclick="generateAddress()" data-testid="generate-address-btn">
+          Generate Address
+        </button>
+        
+        <div class="mt-lg" id="generated-address" style="display: none;">
+          <label class="xhe-label">Generated Address</label>
+          <div class="xhe-hash" id="address-result" data-testid="address-result"></div>
+          <button class="xhe-btn mt-md" onclick="copyAddress()" data-testid="copy-address-btn">
+            Copy Address
+          </button>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="address-resolver-panel">
+        <h2 class="xhe-panel-title">Address Resolver</h2>
+        <p class="text-secondary mb-md">
+          Resolve a content address to find the associated data.
+        </p>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Address to Resolve</label>
+          <input type="text" class="xhe-input" id="resolve-address" data-testid="resolve-address-input"
+                 placeholder="xhe://... or pulse://...">
+        </div>
+        
+        <button class="xhe-btn" onclick="resolveAddress()" data-testid="resolve-btn">
+          Resolve Address
+        </button>
+        
+        <div class="mt-lg" id="resolve-result" style="display: none;">
+          <label class="xhe-label">Resolution Result</label>
+          <div class="xhe-code" id="resolve-content" data-testid="resolve-content"></div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="address-book-panel">
+        <h2 class="xhe-panel-title">Address Book</h2>
+        <p class="text-secondary mb-md">
+          Recently generated and resolved addresses.
+        </p>
+        
+        <div id="address-book" class="flex flex-col gap-sm">
+          <p class="text-muted">No addresses recorded yet.</p>
+        </div>
+        
+        <button class="xhe-btn mt-md" onclick="clearAddressBook()" data-testid="clear-addresses-btn">
+          Clear Address Book
+        </button>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="uri-spec-panel">
+        <h2 class="xhe-panel-title">URI Specification</h2>
+        <div class="xhe-code">
+# Content Address
+xhe://&lt;sha256-hash&gt;
+
+# Identity Address  
+did:xhe:&lt;32-char-hex&gt;
+
+# Pulsar Address
+pulse://&lt;index&gt;/&lt;hash&gt;
+
+# IPFS Address
+ipfs://&lt;cid&gt;
+
+# Examples:
+xhe://a1b2c3d4e5f6...
+did:xhe:a1b2c3d4e5f678901234567890abcdef
+pulse://000001/a1b2c3d4e5f6...
+ipfs://QmYwAPJzv5CZsnA...</div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="console-panel">
+        <h2 class="xhe-panel-title">Addressing Console</h2>
+        <div class="xhe-console" id="xhe-console"></div>
+      </section>
+    </main>
+  </div>
+  
+  <script src="js/core.js"></script>
+  <script>
+    const addressBook = [];
+    let lastGeneratedAddress = '';
+    
+    async function generateAddress() {
+      const content = document.getElementById('address-content').value;
+      const namespace = document.getElementById('address-namespace').value;
+      
+      if (!content) {
+        XheUtils.log('Content is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      const hash = await XheUtils.sha256(content);
+      let address;
+      
+      switch (namespace) {
+        case 'xhe':
+          address = `xhe://${hash}`;
+          break;
+        case 'pulse':
+          const index = await xheStorage.count('pulsars');
+          address = `pulse://${String(index).padStart(6, '0')}/${hash}`;
+          break;
+        case 'ipfs':
+          // Simulate IPFS CID (in production, would use actual IPFS)
+          address = `ipfs://Qm${hash.slice(0, 44)}`;
+          break;
+        default:
+          address = `xhe://${hash}`;
+      }
+      
+      lastGeneratedAddress = address;
+      
+      document.getElementById('address-result').textContent = address;
+      document.getElementById('generated-address').style.display = 'block';
+      
+      // Add to address book
+      addressBook.unshift({
+        address,
+        contentPreview: content.slice(0, 50) + (content.length > 50 ? '...' : ''),
+        timestamp: Date.now()
+      });
+      
+      renderAddressBook();
+      XheUtils.log(`Address generated: ${address.slice(0, 30)}...`, 'success', 'xhe-console');
+      
+      // Store in pulsar
+      await xheKernel.createPulsar('ADDRESS_GENERATE', {
+        address,
+        namespace,
+        contentHash: hash
+      });
+    }
+    
+    function copyAddress() {
+      if (lastGeneratedAddress) {
+        navigator.clipboard.writeText(lastGeneratedAddress);
+        XheUtils.log('Address copied to clipboard', 'success', 'xhe-console');
+      }
+    }
+    
+    async function resolveAddress() {
+      const address = document.getElementById('resolve-address').value.trim();
+      
+      if (!address) {
+        XheUtils.log('Address is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      const resultDiv = document.getElementById('resolve-result');
+      const contentDiv = document.getElementById('resolve-content');
+      
+      // Parse address
+      let result = null;
+      
+      if (address.startsWith('pulse://')) {
+        const parts = address.replace('pulse://', '').split('/');
+        const index = parseInt(parts[0]);
+        const pulsars = await xheKernel.getAllPulsars();
+        const pulsar = pulsars.find(p => p.index === index);
+        
+        if (pulsar) {
+          result = JSON.stringify(pulsar, null, 2);
+        }
+      } else if (address.startsWith('did:xhe:')) {
+        const identity = await xheIdentity.getCurrentIdentity();
+        if (identity && identity.did === address) {
+          result = JSON.stringify({
+            did: identity.did,
+            publicKeys: identity.publicKeys,
+            created: identity.created
+          }, null, 2);
+        }
+      } else if (address.startsWith('xhe://')) {
+        // Search in pulsars for matching hash
+        const hash = address.replace('xhe://', '');
+        const pulsars = await xheKernel.getAllPulsars();
+        const found = pulsars.filter(p => 
+          p.hash === hash || 
+          (p.payload && JSON.stringify(p.payload).includes(hash))
+        );
+        
+        if (found.length > 0) {
+          result = JSON.stringify(found, null, 2);
+        }
+      }
+      
+      resultDiv.style.display = 'block';
+      
+      if (result) {
+        contentDiv.textContent = result;
+        XheUtils.log(`Address resolved successfully`, 'success', 'xhe-console');
+      } else {
+        contentDiv.innerHTML = '<span class="text-red">Address not found in local storage</span>';
+        XheUtils.log('Address not found', 'warn', 'xhe-console');
+      }
+    }
+    
+    function renderAddressBook() {
+      const container = document.getElementById('address-book');
+      
+      if (addressBook.length === 0) {
+        container.innerHTML = '<p class="text-muted">No addresses recorded yet.</p>';
+        return;
+      }
+      
+      container.innerHTML = addressBook.slice(0, 10).map((item, i) => `
+        <div class="xhe-pulsar" data-testid="address-entry-${i}">
+          <span class="xhe-pulsar-hash" style="flex: 1; cursor: pointer;" 
+                onclick="document.getElementById('resolve-address').value='${item.address}'"
+                title="${item.address}">
+            ${item.address.slice(0, 40)}...
+          </span>
+          <span class="text-muted" style="font-size: 0.75rem;">${item.contentPreview}</span>
+        </div>
+      `).join('');
+    }
+    
+    function clearAddressBook() {
+      addressBook.length = 0;
+      renderAddressBook();
+      XheUtils.log('Address book cleared', 'info', 'xhe-console');
+    }
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initXhe();
+      XheUtils.log('Addressing Rails module initialized', 'info', 'xhe-console');
+    });
+  </script>
+</body>
+</html>

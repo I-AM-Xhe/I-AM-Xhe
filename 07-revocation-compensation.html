@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I·AM·Xhe — Revocation & Compensation</title>
+  <link rel="stylesheet" href="css/core.css">
+</head>
+<body>
+  <div class="scanline-overlay"></div>
+  
+  <button class="mobile-toggle" onclick="XheNav.toggleMobileNav()" data-testid="mobile-nav-toggle">☰</button>
+  
+  <div class="xhe-shell">
+    <aside class="xhe-sidebar">
+      <a href="99-constitution.html" class="xhe-logo" data-testid="logo">I·AM·Xhe</a>
+      <nav class="xhe-nav" id="xhe-nav"></nav>
+    </aside>
+    
+    <main class="xhe-main" data-testid="revocation-main">
+      <header class="xhe-page-header">
+        <h1 class="xhe-page-title">07 — Revocation & Compensation</h1>
+        <p class="xhe-page-subtitle">Atomic rollback + compensation logic</p>
+      </header>
+      
+      <div class="xhe-alert" data-testid="revocation-info">
+        Revocation in an append-only system works through compensation — recording that a 
+        previous action is no longer valid, rather than deleting it.
+      </div>
+      
+      <section class="xhe-grid">
+        <div class="xhe-panel" data-testid="revocation-model-panel">
+          <h2 class="xhe-panel-title">Revocation Model</h2>
+          <ul class="xhe-list">
+            <li class="xhe-list-item">
+              <span>Delete Records</span>
+              <span class="xhe-tag xhe-tag--red">FORBIDDEN</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Modify History</span>
+              <span class="xhe-tag xhe-tag--red">FORBIDDEN</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Compensate</span>
+              <span class="xhe-tag xhe-tag--green">ALLOWED</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Revoke Forward</span>
+              <span class="xhe-tag xhe-tag--green">ALLOWED</span>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="xhe-panel" data-testid="compensation-types-panel">
+          <h2 class="xhe-panel-title">Compensation Types</h2>
+          <ul class="xhe-list">
+            <li class="xhe-list-item">
+              <span>KEY_REVOKE</span>
+              <span class="xhe-tag xhe-tag--cyan">POLICY</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>POST_RETRACT</span>
+              <span class="xhe-tag xhe-tag--cyan">SOCIAL</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>KARMA_ADJUST</span>
+              <span class="xhe-tag xhe-tag--cyan">MERIT</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>FORK_ABANDON</span>
+              <span class="xhe-tag xhe-tag--cyan">GOVERNANCE</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="revocation-actions-panel">
+        <h2 class="xhe-panel-title">Revocation Actions</h2>
+        <p class="text-secondary mb-md">
+          Select a revocation type and provide the target identifier.
+        </p>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Revocation Type</label>
+          <select class="xhe-input" id="revocation-type" data-testid="revocation-type-select" style="background: var(--bg-void);">
+            <option value="KEY_REVOKE">Revoke Policy Key</option>
+            <option value="POST_RETRACT">Retract Post</option>
+            <option value="CAPABILITY_REVOKE">Revoke Capability</option>
+          </select>
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Target Identifier</label>
+          <input type="text" class="xhe-input" id="revocation-target" data-testid="revocation-target-input"
+                 placeholder="Key ID, Post ID, or Hash...">
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Reason (optional)</label>
+          <textarea class="xhe-textarea" id="revocation-reason" data-testid="revocation-reason-input"
+                    placeholder="Provide a reason for this revocation..."></textarea>
+        </div>
+        
+        <button class="xhe-btn xhe-btn--red" onclick="executeRevocation()" data-testid="execute-revocation-btn">
+          Execute Revocation
+        </button>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="revocation-history-panel">
+        <h2 class="xhe-panel-title">Revocation History</h2>
+        <div id="revocation-history">
+          <p class="text-muted">No revocations recorded.</p>
+        </div>
+        <button class="xhe-btn mt-md" onclick="refreshRevocationHistory()" data-testid="refresh-history-btn">
+          Refresh History
+        </button>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="compensation-simulator-panel">
+        <h2 class="xhe-panel-title">Compensation Simulator</h2>
+        <p class="text-secondary mb-md">
+          Simulate a compensation scenario to understand how it would affect the system state.
+        </p>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Original Action (JSON)</label>
+          <textarea class="xhe-textarea" id="original-action" data-testid="original-action-input"
+                    placeholder='{"type": "KARMA_ADD", "amount": 10, "target": "did:xhe:..."}'></textarea>
+        </div>
+        
+        <button class="xhe-btn xhe-btn--purple" onclick="simulateCompensation()" data-testid="simulate-btn">
+          Simulate Compensation
+        </button>
+        
+        <div class="mt-lg" id="compensation-result" style="display: none;">
+          <label class="xhe-label">Compensation Plan</label>
+          <div class="xhe-code" id="compensation-plan" data-testid="compensation-plan"></div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="rollback-panel">
+        <h2 class="xhe-panel-title">Atomic Rollback</h2>
+        <p class="text-secondary mb-md">
+          In append-only systems, "rollback" means creating a new state that compensates for 
+          all effects of the target action and its dependencies.
+        </p>
+        
+        <div class="xhe-code">
+RollbackPlan {
+  targetPulsar: string,   // Hash of action to compensate
+  affectedPulsars: [],    // Dependent actions
+  compensations: [        // List of compensation pulsars
+    {
+      type: "COMPENSATE",
+      original: string,
+      effect: "NEGATE" | "ADJUST"
+    }
+  ],
+  newState: object        // Resulting system state
+}</div>
+        
+        <div class="xhe-alert xhe-alert--warning mt-md">
+          <strong>NOTE:</strong> Rollbacks do not delete history. They add compensating 
+          entries that make the original action effectively null.
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="console-panel">
+        <h2 class="xhe-panel-title">Revocation Console</h2>
+        <div class="xhe-console" id="xhe-console"></div>
+      </section>
+    </main>
+  </div>
+  
+  <script src="js/core.js"></script>
+  <script>
+    async function executeRevocation() {
+      const type = document.getElementById('revocation-type').value;
+      const target = document.getElementById('revocation-target').value.trim();
+      const reason = document.getElementById('revocation-reason').value.trim();
+      
+      if (!target) {
+        XheUtils.log('Target identifier is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      try {
+        let result;
+        
+        switch (type) {
+          case 'KEY_REVOKE':
+            result = await xhePolicyKeys.revokePolicyKey(target);
+            XheUtils.log(`Policy key revoked: ${XheUtils.formatHash(target)}`, 'success', 'xhe-console');
+            break;
+            
+          case 'POST_RETRACT':
+            // Create retraction pulsar
+            await xheKernel.createPulsar('POST_RETRACT', {
+              originalPostId: target,
+              reason,
+              retractedAt: Date.now()
+            });
+            XheUtils.log(`Post retracted: ${XheUtils.formatHash(target)}`, 'success', 'xhe-console');
+            break;
+            
+          case 'CAPABILITY_REVOKE':
+            await xheKernel.createPulsar('CAPABILITY_REVOKE', {
+              target,
+              reason,
+              revokedAt: Date.now()
+            });
+            XheUtils.log(`Capability revoked for: ${XheUtils.formatHash(target)}`, 'success', 'xhe-console');
+            break;
+        }
+        
+        // Record the revocation
+        await xheKernel.createPulsar('REVOCATION', {
+          type,
+          target,
+          reason,
+          timestamp: Date.now()
+        });
+        
+        refreshRevocationHistory();
+        
+        // Clear form
+        document.getElementById('revocation-target').value = '';
+        document.getElementById('revocation-reason').value = '';
+        
+      } catch (error) {
+        XheUtils.log(`Revocation failed: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    async function refreshRevocationHistory() {
+      const pulsars = await xheKernel.getAllPulsars();
+      const revocations = pulsars.filter(p => 
+        p.type === 'REVOCATION' || 
+        p.type === 'POLICY_KEY_REVOKE' || 
+        p.type === 'POST_RETRACT' ||
+        p.type === 'CAPABILITY_REVOKE'
+      );
+      
+      const container = document.getElementById('revocation-history');
+      
+      if (revocations.length === 0) {
+        container.innerHTML = '<p class="text-muted">No revocations recorded.</p>';
+        return;
+      }
+      
+      container.innerHTML = `
+        <table class="xhe-table">
+          <thead>
+            <tr>
+              <th>Pulse</th>
+              <th>Type</th>
+              <th>Target</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${revocations.reverse().map(r => `
+              <tr data-testid="revocation-row-${r.index}">
+                <td><span class="text-cyan">${XheUtils.formatPulseIndex(r.index)}</span></td>
+                <td><span class="text-purple">${r.type}</span></td>
+                <td><span class="text-secondary">${XheUtils.formatHash(r.payload.target || r.payload.keyId || '', 6)}</span></td>
+                <td><span class="xhe-tag xhe-tag--red">REVOKED</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+    
+    async function simulateCompensation() {
+      const actionStr = document.getElementById('original-action').value.trim();
+      
+      if (!actionStr) {
+        XheUtils.log('Original action is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      try {
+        const action = JSON.parse(actionStr);
+        
+        // Generate compensation plan
+        const plan = {
+          originalAction: action,
+          compensationType: 'NEGATE',
+          compensationAction: {},
+          explanation: ''
+        };
+        
+        // Determine compensation based on action type
+        switch (action.type) {
+          case 'KARMA_ADD':
+            plan.compensationAction = {
+              type: 'KARMA_SUBTRACT',
+              amount: action.amount,
+              target: action.target,
+              reason: 'Compensation for revoked karma grant'
+            };
+            plan.explanation = `Subtract ${action.amount} karma from ${action.target}`;
+            break;
+            
+          case 'POLICY_KEY_ISSUE':
+            plan.compensationAction = {
+              type: 'POLICY_KEY_REVOKE',
+              keyId: action.keyId,
+              reason: 'Compensation for revoked key issuance'
+            };
+            plan.explanation = `Revoke policy key ${action.keyId}`;
+            break;
+            
+          default:
+            plan.compensationAction = {
+              type: `${action.type}_COMPENSATE`,
+              original: action,
+              reason: 'Generic compensation'
+            };
+            plan.explanation = `Create compensating pulsar for ${action.type}`;
+        }
+        
+        document.getElementById('compensation-plan').textContent = JSON.stringify(plan, null, 2);
+        document.getElementById('compensation-result').style.display = 'block';
+        
+        XheUtils.log('Compensation plan generated', 'success', 'xhe-console');
+        
+      } catch (error) {
+        XheUtils.log(`Invalid JSON: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initXhe();
+      await refreshRevocationHistory();
+      XheUtils.log('Revocation & Compensation module initialized', 'info', 'xhe-console');
+    });
+  </script>
+</body>
+</html>

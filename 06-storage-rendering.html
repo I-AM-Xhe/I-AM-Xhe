@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I·AM·Xhe — Storage & Rendering</title>
+  <link rel="stylesheet" href="css/core.css">
+</head>
+<body>
+  <div class="scanline-overlay"></div>
+  
+  <button class="mobile-toggle" onclick="XheNav.toggleMobileNav()" data-testid="mobile-nav-toggle">☰</button>
+  
+  <div class="xhe-shell">
+    <aside class="xhe-sidebar">
+      <a href="99-constitution.html" class="xhe-logo" data-testid="logo">I·AM·Xhe</a>
+      <nav class="xhe-nav" id="xhe-nav"></nav>
+    </aside>
+    
+    <main class="xhe-main" data-testid="storage-main">
+      <header class="xhe-page-header">
+        <h1 class="xhe-page-title">06 — Storage & Rendering</h1>
+        <p class="xhe-page-subtitle">Helia IPFS + deterministic render rails</p>
+      </header>
+      
+      <div class="xhe-alert" data-testid="storage-info">
+        Storage in I·AM·Xhe uses IndexedDB for local persistence and Helia IPFS for 
+        content-addressed distribution. All data is append-only.
+      </div>
+      
+      <section class="xhe-grid">
+        <div class="xhe-panel" data-testid="indexeddb-panel">
+          <h2 class="xhe-panel-title">IndexedDB Status</h2>
+          <div class="flex flex-col gap-md">
+            <div class="flex justify-between">
+              <span class="text-secondary">Status</span>
+              <span class="xhe-status xhe-status--active" id="idb-status">Connected</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">Database</span>
+              <span class="text-cyan">XheKernel</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">Total Records</span>
+              <span class="text-green" id="total-records">0</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="xhe-panel" data-testid="ipfs-panel">
+          <h2 class="xhe-panel-title">IPFS Status</h2>
+          <div class="flex flex-col gap-md">
+            <div class="flex justify-between">
+              <span class="text-secondary">Helia</span>
+              <span class="xhe-status" id="ipfs-status">Not Connected</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">Gateway</span>
+              <span class="text-secondary" style="font-size: 0.75rem;">ipfs.io</span>
+            </div>
+            <button class="xhe-btn" onclick="initIPFS()" data-testid="init-ipfs-btn">
+              Initialize Helia
+            </button>
+          </div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="store-stats-panel">
+        <h2 class="xhe-panel-title">Object Store Statistics</h2>
+        <table class="xhe-table" id="store-stats-table">
+          <thead>
+            <tr>
+              <th>Store</th>
+              <th>Records</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="store-stats-body">
+            <tr>
+              <td colspan="3" class="text-muted">Loading...</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="store-content-panel">
+        <h2 class="xhe-panel-title">Store Content Viewer</h2>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Select Store</label>
+          <select class="xhe-input" id="view-store" data-testid="view-store-select" style="background: var(--bg-void);">
+            <option value="pulsars">Pulsars</option>
+            <option value="identity">Identity</option>
+            <option value="policyKeys">Policy Keys</option>
+            <option value="karma">Karma</option>
+            <option value="social">Social</option>
+            <option value="forks">Forks</option>
+          </select>
+        </div>
+        
+        <button class="xhe-btn" onclick="viewStoreContent()" data-testid="view-store-btn">
+          View Content
+        </button>
+        
+        <div class="mt-lg">
+          <div class="xhe-code" id="store-content" style="max-height: 400px; overflow-y: auto;">
+            <span class="text-muted">Select a store and click View Content</span>
+          </div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="export-import-panel">
+        <h2 class="xhe-panel-title">Data Export / Import</h2>
+        <p class="text-secondary mb-md">
+          Export all data for backup or import existing data. This is the survival ritual.
+        </p>
+        
+        <div class="flex gap-md">
+          <button class="xhe-btn xhe-btn--green" onclick="exportAllData()" data-testid="export-data-btn">
+            Export All Data
+          </button>
+          <label class="xhe-btn xhe-btn--purple" data-testid="import-data-btn">
+            Import Data
+            <input type="file" accept=".json" onchange="importData(event)" style="display: none;">
+          </label>
+          <button class="xhe-btn xhe-btn--red" onclick="confirmClearAll()" data-testid="clear-data-btn">
+            Clear All Data
+          </button>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="ipfs-publish-panel">
+        <h2 class="xhe-panel-title">IPFS Publish</h2>
+        <p class="text-secondary mb-md">
+          Publish content to IPFS for distributed storage.
+        </p>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Content to Publish</label>
+          <textarea class="xhe-textarea" id="ipfs-content" data-testid="ipfs-content-input"
+                    placeholder="Enter content to publish to IPFS..."></textarea>
+        </div>
+        
+        <button class="xhe-btn" onclick="publishToIPFS()" data-testid="publish-ipfs-btn" id="publish-btn">
+          Publish to IPFS
+        </button>
+        
+        <div class="mt-lg" id="ipfs-result" style="display: none;">
+          <label class="xhe-label">Content ID (CID)</label>
+          <div class="xhe-hash" id="ipfs-cid" data-testid="ipfs-cid"></div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="render-rails-panel">
+        <h2 class="xhe-panel-title">Render Rails</h2>
+        <p class="text-secondary mb-md">
+          Deterministic rendering ensures the same data always produces the same output.
+        </p>
+        
+        <ul class="xhe-list">
+          <li class="xhe-list-item">
+            <span>JSON → Canonical</span>
+            <span class="xhe-tag xhe-tag--green">DETERMINISTIC</span>
+          </li>
+          <li class="xhe-list-item">
+            <span>Hash → Verify</span>
+            <span class="xhe-tag xhe-tag--green">DETERMINISTIC</span>
+          </li>
+          <li class="xhe-list-item">
+            <span>Display → Consistent</span>
+            <span class="xhe-tag xhe-tag--green">DETERMINISTIC</span>
+          </li>
+        </ul>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="console-panel">
+        <h2 class="xhe-panel-title">Storage Console</h2>
+        <div class="xhe-console" id="xhe-console"></div>
+      </section>
+      
+      <!-- Clear Confirmation Modal -->
+      <div class="xhe-modal-overlay" id="clear-modal" data-testid="clear-modal">
+        <div class="xhe-modal">
+          <div class="xhe-modal-header">
+            <h3 class="xhe-modal-title">Clear All Data</h3>
+            <button class="xhe-modal-close" onclick="closeClearModal()">&times;</button>
+          </div>
+          <div class="xhe-modal-body">
+            <div class="xhe-alert xhe-alert--error">
+              <strong>WARNING:</strong> This will delete ALL local data. Export first!
+            </div>
+            <p class="text-secondary">
+              Type <span class="text-red">"CLEAR ALL"</span> to confirm:
+            </p>
+            <input type="text" class="xhe-input mt-md" id="clear-confirm-input" 
+                   data-testid="clear-confirm-input"
+                   placeholder="Type CLEAR ALL">
+          </div>
+          <div class="xhe-modal-footer">
+            <button class="xhe-btn" onclick="closeClearModal()" data-testid="cancel-clear-btn">
+              Cancel
+            </button>
+            <button class="xhe-btn xhe-btn--red" onclick="clearAllData()" data-testid="confirm-clear-btn">
+              Clear All
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script src="js/core.js"></script>
+  <script>
+    
+    async function loadStoreStats() {
+      const stores = ['pulsars', 'identity', 'policyKeys', 'karma', 'social', 'forks'];
+      const tbody = document.getElementById('store-stats-body');
+      let totalRecords = 0;
+      
+      const rows = await Promise.all(stores.map(async store => {
+        const count = await xheStorage.count(store);
+        totalRecords += count;
+        return `
+          <tr data-testid="store-row-${store}">
+            <td><span class="text-cyan">${store}</span></td>
+            <td>${count}</td>
+            <td><span class="xhe-tag xhe-tag--green">OK</span></td>
+          </tr>
+        `;
+      }));
+      
+      tbody.innerHTML = rows.join('');
+      document.getElementById('total-records').textContent = totalRecords;
+    }
+    
+    async function viewStoreContent() {
+      const store = document.getElementById('view-store').value;
+      const contentEl = document.getElementById('store-content');
+      
+      try {
+        const data = await xheStorage.getAll(store);
+        contentEl.textContent = JSON.stringify(data, null, 2);
+        XheUtils.log(`Loaded ${data.length} records from ${store}`, 'info', 'xhe-console');
+      } catch (error) {
+        contentEl.innerHTML = `<span class="text-red">Error: ${error.message}</span>`;
+        XheUtils.log(`Error loading ${store}: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    async function exportAllData() {
+      try {
+        await xheSurvival.exportArchive();
+        XheUtils.log('Data exported successfully', 'success', 'xhe-console');
+      } catch (error) {
+        XheUtils.log(`Export error: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    async function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      try {
+        await xheSurvival.importArchive(file);
+        XheUtils.log('Data imported successfully', 'success', 'xhe-console');
+        await loadStoreStats();
+      } catch (error) {
+        XheUtils.log(`Import error: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    function confirmClearAll() {
+      document.getElementById('clear-modal').classList.add('active');
+    }
+    
+    function closeClearModal() {
+      document.getElementById('clear-modal').classList.remove('active');
+      document.getElementById('clear-confirm-input').value = '';
+    }
+    
+    async function clearAllData() {
+      const confirm = document.getElementById('clear-confirm-input').value;
+      
+      if (confirm !== 'CLEAR ALL') {
+        XheUtils.log('Confirmation text does not match', 'error', 'xhe-console');
+        return;
+      }
+      
+      const stores = ['pulsars', 'identity', 'policyKeys', 'karma', 'social', 'forks'];
+      
+      for (const store of stores) {
+        await xheStorage.clear(store);
+      }
+      
+      closeClearModal();
+      await loadStoreStats();
+      XheUtils.log('All data cleared', 'warn', 'xhe-console');
+    }
+    
+    async function initIPFS() {
+      const statusEl = document.getElementById('ipfs-status');
+      statusEl.textContent = 'Initializing...';
+      
+      try {
+        // Note: In production, this would initialize actual Helia
+        // For demo, we simulate IPFS-like behavior
+        XheUtils.log('Simulating Helia IPFS initialization...', 'info', 'xhe-console');
+        
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        heliaNode = {
+          add: async (content) => {
+            const hash = await XheUtils.sha256(content);
+            return `Qm${hash.slice(0, 44)}`;
+          },
+          get: async (cid) => {
+            // Would fetch from IPFS network
+            return null;
+          }
+        };
+        
+        statusEl.textContent = 'Connected';
+        statusEl.className = 'xhe-status xhe-status--active';
+        XheUtils.log('Helia IPFS initialized (simulation mode)', 'success', 'xhe-console');
+      } catch (error) {
+        statusEl.textContent = 'Failed';
+        statusEl.className = 'xhe-status xhe-status--error';
+        XheUtils.log(`IPFS initialization failed: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    async function publishToIPFS() {
+      const content = document.getElementById('ipfs-content').value;
+      
+      if (!content) {
+        XheUtils.log('Content is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      if (!heliaNode) {
+        XheUtils.log('Initialize Helia first', 'error', 'xhe-console');
+        return;
+      }
+      
+      const btn = document.getElementById('publish-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="xhe-loading"></span> Publishing...';
+      
+      try {
+        const cid = await heliaNode.add(content);
+        
+        document.getElementById('ipfs-cid').textContent = cid;
+        document.getElementById('ipfs-result').style.display = 'block';
+        
+        XheUtils.log(`Published to IPFS: ${cid}`, 'success', 'xhe-console');
+        
+        // Record in pulsar
+        await xheKernel.createPulsar('IPFS_PUBLISH', {
+          cid,
+          contentHash: await XheUtils.sha256(content)
+        });
+      } catch (error) {
+        XheUtils.log(`Publish error: ${error.message}`, 'error', 'xhe-console');
+      }
+      
+      btn.disabled = false;
+      btn.innerHTML = 'Publish to IPFS';
+    }
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initXhe();
+      await loadStoreStats();
+      XheUtils.log('Storage module initialized', 'info', 'xhe-console');
+    });
+  </script>
+</body>
+</html>

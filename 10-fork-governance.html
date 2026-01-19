@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I·AM·Xhe — Fork Governance</title>
+  <link rel="stylesheet" href="css/core.css">
+</head>
+<body>
+  <div class="scanline-overlay"></div>
+  
+  <button class="mobile-toggle" onclick="XheNav.toggleMobileNav()" data-testid="mobile-nav-toggle">☰</button>
+  
+  <div class="xhe-shell">
+    <aside class="xhe-sidebar">
+      <a href="99-constitution.html" class="xhe-logo" data-testid="logo">I·AM·Xhe</a>
+      <nav class="xhe-nav" id="xhe-nav"></nav>
+    </aside>
+    
+    <main class="xhe-main" data-testid="governance-main">
+      <header class="xhe-page-header">
+        <h1 class="xhe-page-title">10 — Fork Governance</h1>
+        <p class="xhe-page-subtitle">Explicit fork & governance mechanics</p>
+      </header>
+      
+      <div class="xhe-alert" data-testid="fork-principle">
+        <strong>PRINCIPLE:</strong> Law is executable — deterministic, inspectable, and forkable.
+        Forks are explicit, visible, non-destructive, and memory-preserving.
+      </div>
+      
+      <section class="xhe-grid">
+        <div class="xhe-panel" data-testid="current-fork-panel">
+          <h2 class="xhe-panel-title">Current Fork</h2>
+          <div class="flex flex-col gap-md">
+            <div class="flex justify-between">
+              <span class="text-secondary">Name</span>
+              <span class="text-cyan" id="current-fork-name">Genesis</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">From Pulse</span>
+              <span class="text-green" id="current-fork-pulse">P#000000</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">Status</span>
+              <span class="xhe-status xhe-status--active">Active</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="xhe-panel" data-testid="fork-properties-panel">
+          <h2 class="xhe-panel-title">Fork Properties</h2>
+          <ul class="xhe-list">
+            <li class="xhe-list-item">
+              <span>Explicit</span>
+              <span class="xhe-tag xhe-tag--green">YES</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Visible</span>
+              <span class="xhe-tag xhe-tag--green">YES</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Destructive</span>
+              <span class="xhe-tag xhe-tag--red">NO</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Memory-Preserving</span>
+              <span class="xhe-tag xhe-tag--green">YES</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Hidden Consensus</span>
+              <span class="xhe-tag xhe-tag--red">NO</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="create-fork-panel">
+        <h2 class="xhe-panel-title">Create Fork</h2>
+        <p class="text-secondary mb-md">
+          Create a new fork from a specific point in history. All history before the fork point is preserved.
+        </p>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Fork Name</label>
+          <input type="text" class="xhe-input" id="fork-name" data-testid="fork-name-input"
+                 placeholder="e.g., experimental-v2">
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Description</label>
+          <textarea class="xhe-textarea" id="fork-description" data-testid="fork-description-input"
+                    placeholder="Describe the purpose of this fork..."></textarea>
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Fork From Pulse Index</label>
+          <input type="number" class="xhe-input" id="fork-pulse-index" data-testid="fork-pulse-input"
+                 value="0" min="0">
+          <span class="text-muted" style="font-size: 0.75rem;">Leave at 0 for current head</span>
+        </div>
+        
+        <button class="xhe-btn xhe-btn--purple" onclick="createFork()" data-testid="create-fork-btn">
+          Create Fork
+        </button>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="available-forks-panel">
+        <h2 class="xhe-panel-title">Available Forks</h2>
+        <div id="forks-list">
+          <p class="text-muted">No forks created yet. The system is on the Genesis fork.</p>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="proposals-panel">
+        <h2 class="xhe-panel-title">Governance Proposals</h2>
+        <p class="text-secondary mb-md">
+          Submit proposals for system changes. Proposals are recorded as pulsars and can be voted on.
+        </p>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Proposal Title</label>
+          <input type="text" class="xhe-input" id="proposal-title" data-testid="proposal-title-input"
+                 placeholder="Brief title for your proposal">
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Proposal Description</label>
+          <textarea class="xhe-textarea" id="proposal-description" data-testid="proposal-description-input"
+                    placeholder="Detailed description of the proposed change..."></textarea>
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Proposal Type</label>
+          <select class="xhe-input" id="proposal-type" data-testid="proposal-type-select" style="background: var(--bg-void);">
+            <option value="parameter">Parameter Change</option>
+            <option value="feature">New Feature</option>
+            <option value="policy">Policy Update</option>
+            <option value="fork">Fork Proposal</option>
+            <option value="constitution">Constitutional Amendment</option>
+          </select>
+        </div>
+        
+        <button class="xhe-btn xhe-btn--green" onclick="submitProposal()" data-testid="submit-proposal-btn">
+          Submit Proposal
+        </button>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="active-proposals-panel">
+        <h2 class="xhe-panel-title">Active Proposals</h2>
+        <div id="proposals-list">
+          <p class="text-muted">No active proposals.</p>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="fork-tree-panel">
+        <h2 class="xhe-panel-title">Fork Tree Visualization</h2>
+        <div class="xhe-code" id="fork-tree" style="font-family: var(--font-mono);">
+Genesis (P#000000)
+└── Current Head
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="console-panel">
+        <h2 class="xhe-panel-title">Governance Console</h2>
+        <div class="xhe-console" id="xhe-console"></div>
+      </section>
+    </main>
+  </div>
+  
+  <script src="js/core.js"></script>
+  <script>
+    async function createFork() {
+      const name = document.getElementById('fork-name').value.trim();
+      const description = document.getElementById('fork-description').value.trim();
+      const fromIndex = parseInt(document.getElementById('fork-pulse-index').value) || 0;
+      
+      if (!name) {
+        XheUtils.log('Fork name is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      try {
+        // Get current pulse count if forking from head
+        let actualFromIndex = fromIndex;
+        if (fromIndex === 0) {
+          const pulsars = await xheKernel.getAllPulsars();
+          actualFromIndex = pulsars.length;
+        }
+        
+        const fork = await xheFork.createFork(name, description, actualFromIndex);
+        
+        XheUtils.log(`Fork created: ${name}`, 'success', 'xhe-console');
+        XheUtils.log(`Fork ID: ${XheUtils.formatHash(fork.id)}`, 'info', 'xhe-console');
+        XheUtils.log(`From pulse: P#${String(actualFromIndex).padStart(6, '0')}`, 'info', 'xhe-console');
+        
+        // Clear form
+        document.getElementById('fork-name').value = '';
+        document.getElementById('fork-description').value = '';
+        document.getElementById('fork-pulse-index').value = '0';
+        
+        await refreshForks();
+        
+      } catch (error) {
+        XheUtils.log(`Error: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    async function refreshForks() {
+      const forks = await xheFork.getForks();
+      const container = document.getElementById('forks-list');
+      
+      if (forks.length === 0) {
+        container.innerHTML = '<p class="text-muted">No forks created yet. The system is on the Genesis fork.</p>';
+        updateForkTree([]);
+        return;
+      }
+      
+      container.innerHTML = `
+        <table class="xhe-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>From Pulse</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${forks.map(fork => `
+              <tr data-testid="fork-row-${fork.id.slice(0, 8)}">
+                <td><span class="text-cyan">${fork.name}</span></td>
+                <td><span class="text-green">P#${String(fork.fromPulseIndex).padStart(6, '0')}</span></td>
+                <td class="text-muted">${new Date(fork.created).toLocaleDateString()}</td>
+                <td>
+                  <button class="xhe-btn" style="padding: 4px 8px; font-size: 0.75rem;"
+                          onclick="selectFork('${fork.id}')"
+                          data-testid="select-fork-${fork.id.slice(0, 8)}">
+                    Select
+                  </button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+      
+      updateForkTree(forks);
+    }
+    
+    async function selectFork(forkId) {
+      try {
+        const fork = await xheFork.selectFork(forkId);
+        
+        document.getElementById('current-fork-name').textContent = fork.name;
+        document.getElementById('current-fork-pulse').textContent = `P#${String(fork.fromPulseIndex).padStart(6, '0')}`;
+        
+        XheUtils.log(`Switched to fork: ${fork.name}`, 'success', 'xhe-console');
+        
+      } catch (error) {
+        XheUtils.log(`Error: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    function updateForkTree(forks) {
+      const container = document.getElementById('fork-tree');
+      
+      let tree = 'Genesis (P#000000)\n';
+      
+      if (forks.length === 0) {
+        tree += '└── Current Head';
+      } else {
+        // Sort forks by creation time
+        const sorted = [...forks].sort((a, b) => a.fromPulseIndex - b.fromPulseIndex);
+        
+        sorted.forEach((fork, i) => {
+          const prefix = i === sorted.length - 1 ? '└── ' : '├── ';
+          tree += `${prefix}${fork.name} (P#${String(fork.fromPulseIndex).padStart(6, '0')})\n`;
+        });
+      }
+      
+      container.textContent = tree;
+    }
+    
+    async function submitProposal() {
+      const title = document.getElementById('proposal-title').value.trim();
+      const description = document.getElementById('proposal-description').value.trim();
+      const type = document.getElementById('proposal-type').value;
+      
+      if (!title || !description) {
+        XheUtils.log('Title and description are required', 'error', 'xhe-console');
+        return;
+      }
+      
+      const identity = await xheIdentity.getCurrentIdentity();
+      if (!identity) {
+        XheUtils.log('Identity required to submit proposals', 'error', 'xhe-console');
+        return;
+      }
+      
+      try {
+        const proposal = await xheKernel.createPulsar('GOVERNANCE_PROPOSAL', {
+          title,
+          description,
+          type,
+          proposer: identity.did,
+          votes: { yes: 0, no: 0, abstain: 0 },
+          status: 'active'
+        });
+        
+        XheUtils.log(`Proposal submitted: ${title}`, 'success', 'xhe-console');
+        XheUtils.log(`Proposal ID: ${XheUtils.formatHash(proposal.hash)}`, 'info', 'xhe-console');
+        
+        // Clear form
+        document.getElementById('proposal-title').value = '';
+        document.getElementById('proposal-description').value = '';
+        
+        await refreshProposals();
+        
+      } catch (error) {
+        XheUtils.log(`Error: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    async function refreshProposals() {
+      const pulsars = await xheKernel.getAllPulsars();
+      const proposals = pulsars.filter(p => p.type === 'GOVERNANCE_PROPOSAL');
+      const container = document.getElementById('proposals-list');
+      
+      if (proposals.length === 0) {
+        container.innerHTML = '<p class="text-muted">No active proposals.</p>';
+        return;
+      }
+      
+      container.innerHTML = proposals.reverse().map(p => `
+        <div class="xhe-panel" style="margin-bottom: 1rem;" data-testid="proposal-${p.hash.slice(0, 8)}">
+          <div class="flex justify-between items-center mb-sm">
+            <span class="text-cyan">${p.payload.title}</span>
+            <span class="xhe-tag">${p.payload.type.toUpperCase()}</span>
+          </div>
+          <p class="text-secondary mb-md" style="font-size: 0.875rem;">${p.payload.description}</p>
+          <div class="flex gap-md">
+            <button class="xhe-btn xhe-btn--green" style="padding: 4px 8px; font-size: 0.75rem;"
+                    onclick="vote('${p.hash}', 'yes')">
+              Vote Yes
+            </button>
+            <button class="xhe-btn xhe-btn--red" style="padding: 4px 8px; font-size: 0.75rem;"
+                    onclick="vote('${p.hash}', 'no')">
+              Vote No
+            </button>
+            <button class="xhe-btn" style="padding: 4px 8px; font-size: 0.75rem;"
+                    onclick="vote('${p.hash}', 'abstain')">
+              Abstain
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    async function vote(proposalHash, choice) {
+      const identity = await xheIdentity.getCurrentIdentity();
+      if (!identity) {
+        XheUtils.log('Identity required to vote', 'error', 'xhe-console');
+        return;
+      }
+      
+      await xheKernel.createPulsar('GOVERNANCE_VOTE', {
+        proposalHash,
+        voter: identity.did,
+        choice,
+        weight: 1
+      });
+      
+      XheUtils.log(`Vote recorded: ${choice} on ${XheUtils.formatHash(proposalHash)}`, 'success', 'xhe-console');
+    }
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initXhe();
+      await refreshForks();
+      await refreshProposals();
+      XheUtils.log('Fork Governance module initialized', 'info', 'xhe-console');
+    });
+  </script>
+</body>
+</html>

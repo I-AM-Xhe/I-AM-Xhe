@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I·AM·Xhe — Entropy</title>
+  <link rel="stylesheet" href="css/core.css">
+</head>
+<body>
+  <div class="scanline-overlay"></div>
+  
+  <button class="mobile-toggle" onclick="XheNav.toggleMobileNav()" data-testid="mobile-nav-toggle">☰</button>
+  
+  <div class="xhe-shell">
+    <aside class="xhe-sidebar">
+      <a href="99-constitution.html" class="xhe-logo" data-testid="logo">I·AM·Xhe</a>
+      <nav class="xhe-nav" id="xhe-nav"></nav>
+    </aside>
+    
+    <main class="xhe-main" data-testid="entropy-main">
+      <header class="xhe-page-header">
+        <h1 class="xhe-page-title">01 — Entropy</h1>
+        <p class="xhe-page-subtitle">Closed entropy derivation (no clocks)</p>
+      </header>
+      
+      <div class="xhe-alert xhe-alert--warning" data-testid="entropy-warning">
+        <strong>CRITICAL:</strong> Entropy in I·AM·Xhe is never derived from ambient sources like system time, 
+        hardware random, or network data. All randomness must be deterministically reproducible from a seed.
+      </div>
+      
+      <section class="xhe-grid">
+        <div class="xhe-panel" data-testid="entropy-source-panel">
+          <h2 class="xhe-panel-title">Entropy Sources</h2>
+          <ul class="xhe-list">
+            <li class="xhe-list-item">
+              <span>System Clock</span>
+              <span class="xhe-tag xhe-tag--red">FORBIDDEN</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Hardware RNG</span>
+              <span class="xhe-tag xhe-tag--red">FORBIDDEN</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Network Data</span>
+              <span class="xhe-tag xhe-tag--red">FORBIDDEN</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>User Input</span>
+              <span class="xhe-tag xhe-tag--cyan">ALLOWED</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Mnemonic Seed</span>
+              <span class="xhe-tag xhe-tag--green">PRIMARY</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Hash Chaining</span>
+              <span class="xhe-tag xhe-tag--green">PRIMARY</span>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="xhe-panel" data-testid="derivation-panel">
+          <h2 class="xhe-panel-title">Derivation Method</h2>
+          <div class="xhe-code">
+// Deterministic Key Derivation
+hash(seed + ":" + index)
+
+// Chain-linked derivation
+hash(previous_hash + payload)</div>
+          <p class="text-muted mt-md" style="font-size: 0.75rem;">
+            All derived values are reproducible given the same seed and index.
+          </p>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="entropy-generator-panel">
+        <h2 class="xhe-panel-title">Entropy Generator</h2>
+        <p class="text-secondary mb-md">
+          Generate deterministic entropy from a seed phrase. The same seed always produces 
+          the same sequence of values.
+        </p>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Seed Phrase</label>
+          <input type="text" class="xhe-input" id="entropy-seed" 
+                 data-testid="entropy-seed-input"
+                 placeholder="Enter seed phrase...">
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Derivation Index</label>
+          <input type="number" class="xhe-input" id="entropy-index" 
+                 data-testid="entropy-index-input"
+                 value="0" min="0">
+        </div>
+        
+        <button class="xhe-btn xhe-btn--green" onclick="deriveEntropy()" data-testid="derive-entropy-btn">
+          Derive Entropy
+        </button>
+        
+        <div class="mt-lg" id="entropy-result" style="display: none;">
+          <label class="xhe-label">Derived Value</label>
+          <div class="xhe-hash" id="derived-value" data-testid="derived-value"></div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="entropy-pool-panel">
+        <h2 class="xhe-panel-title">Entropy Pool</h2>
+        <p class="text-secondary mb-md">
+          The entropy pool stores deterministically-derived values for use in identity 
+          and key generation. All values are reproducible.
+        </p>
+        
+        <div id="entropy-pool" class="flex flex-col gap-sm">
+          <p class="text-muted">Generate entropy values above to add to the pool.</p>
+        </div>
+        
+        <div class="mt-md flex gap-md">
+          <button class="xhe-btn" onclick="clearPool()" data-testid="clear-pool-btn">
+            Clear Pool
+          </button>
+          <button class="xhe-btn xhe-btn--purple" onclick="exportPool()" data-testid="export-pool-btn">
+            Export Pool
+          </button>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="hash-chain-panel">
+        <h2 class="xhe-panel-title">Hash Chain Visualizer</h2>
+        <p class="text-secondary mb-md">
+          Visualize how values chain together through hash-linking.
+        </p>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Initial Value</label>
+          <input type="text" class="xhe-input" id="chain-initial" 
+                 data-testid="chain-initial-input"
+                 placeholder="Enter initial value...">
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Chain Length</label>
+          <input type="number" class="xhe-input" id="chain-length" 
+                 data-testid="chain-length-input"
+                 value="5" min="1" max="20">
+        </div>
+        
+        <button class="xhe-btn" onclick="generateChain()" data-testid="generate-chain-btn">
+          Generate Chain
+        </button>
+        
+        <div id="hash-chain" class="mt-lg flex flex-col gap-sm"></div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="console-panel">
+        <h2 class="xhe-panel-title">Entropy Console</h2>
+        <div class="xhe-console" id="xhe-console"></div>
+      </section>
+    </main>
+  </div>
+  
+  <script src="js/core.js"></script>
+  <script>
+    const entropyPool = [];
+    
+    async function deriveEntropy() {
+      const seed = document.getElementById('entropy-seed').value;
+      const index = parseInt(document.getElementById('entropy-index').value) || 0;
+      
+      if (!seed) {
+        XheUtils.log('Seed phrase is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      const derived = await XheUtils.deterministicId(seed, index);
+      
+      document.getElementById('derived-value').textContent = derived;
+      document.getElementById('entropy-result').style.display = 'block';
+      
+      entropyPool.push({
+        seed: seed.slice(0, 8) + '...',
+        index,
+        value: derived
+      });
+      
+      renderPool();
+      XheUtils.log(`Derived entropy at index ${index}: ${XheUtils.formatHash(derived)}`, 'success', 'xhe-console');
+      
+      // Increment index for convenience
+      document.getElementById('entropy-index').value = index + 1;
+    }
+    
+    function renderPool() {
+      const container = document.getElementById('entropy-pool');
+      
+      if (entropyPool.length === 0) {
+        container.innerHTML = '<p class="text-muted">Generate entropy values above to add to the pool.</p>';
+        return;
+      }
+      
+      container.innerHTML = entropyPool.map((e, i) => `
+        <div class="xhe-pulsar" data-testid="pool-entry-${i}">
+          <span class="xhe-pulsar-index">#${i}</span>
+          <span class="xhe-pulsar-type">IDX:${e.index}</span>
+          <span class="xhe-pulsar-hash">${XheUtils.formatHash(e.value)}</span>
+        </div>
+      `).join('');
+    }
+    
+    function clearPool() {
+      entropyPool.length = 0;
+      renderPool();
+      XheUtils.log('Entropy pool cleared', 'info', 'xhe-console');
+    }
+    
+    function exportPool() {
+      const json = JSON.stringify(entropyPool, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `entropy-pool-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      XheUtils.log('Entropy pool exported', 'success', 'xhe-console');
+    }
+    
+    async function generateChain() {
+      const initial = document.getElementById('chain-initial').value;
+      const length = parseInt(document.getElementById('chain-length').value) || 5;
+      
+      if (!initial) {
+        XheUtils.log('Initial value is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      const chain = [{ index: 0, value: await XheUtils.sha256(initial) }];
+      
+      for (let i = 1; i < length; i++) {
+        const nextValue = await XheUtils.sha256(chain[i - 1].value);
+        chain.push({ index: i, value: nextValue });
+      }
+      
+      const container = document.getElementById('hash-chain');
+      container.innerHTML = chain.map((item, i) => `
+        <div class="xhe-pulsar" data-testid="chain-${i}">
+          <span class="xhe-pulsar-index">C#${i}</span>
+          <span class="xhe-pulsar-hash" style="flex: 1;">${item.value}</span>
+          ${i < chain.length - 1 ? '<span class="text-cyan">↓</span>' : '<span class="text-green">END</span>'}
+        </div>
+      `).join('');
+      
+      XheUtils.log(`Generated hash chain of length ${length}`, 'success', 'xhe-console');
+    }
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initXhe();
+      XheUtils.log('Entropy module initialized', 'info', 'xhe-console');
+      XheUtils.log('WARNING: No ambient entropy sources permitted', 'warn', 'xhe-console');
+    });
+  </script>
+</body>
+</html>

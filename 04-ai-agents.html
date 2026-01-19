@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I·AM·Xhe — AI Agents</title>
+  <link rel="stylesheet" href="css/core.css">
+</head>
+<body>
+  <div class="scanline-overlay"></div>
+  
+  <button class="mobile-toggle" onclick="XheNav.toggleMobileNav()" data-testid="mobile-nav-toggle">☰</button>
+  
+  <div class="xhe-shell">
+    <aside class="xhe-sidebar">
+      <a href="99-constitution.html" class="xhe-logo" data-testid="logo">I·AM·Xhe</a>
+      <nav class="xhe-nav" id="xhe-nav"></nav>
+    </aside>
+    
+    <main class="xhe-main" data-testid="ai-agents-main">
+      <header class="xhe-page-header">
+        <h1 class="xhe-page-title">04 — AI Agents</h1>
+        <p class="xhe-page-subtitle">Local AI agents (non-authoritative)</p>
+      </header>
+      
+      <div class="xhe-alert xhe-alert--warning" data-testid="ai-principle">
+        <strong>PRINCIPLE:</strong> AI are agents, not rulers. They advise, explain, and simulate — never decide.
+        All final authority rests with identity-bound humans and their policy-keys.
+      </div>
+      
+      <section class="xhe-grid">
+        <div class="xhe-panel" data-testid="ollama-status-panel">
+          <h2 class="xhe-panel-title">Ollama Status</h2>
+          <div class="flex flex-col gap-md">
+            <div class="flex justify-between items-center">
+              <span class="text-secondary">Connection</span>
+              <span class="xhe-status" id="ollama-status">Checking...</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">Endpoint</span>
+              <span class="text-cyan" style="font-size: 0.75rem;">localhost:11434</span>
+            </div>
+            <button class="xhe-btn" onclick="checkOllamaStatus()" data-testid="check-status-btn">
+              Refresh Status
+            </button>
+          </div>
+        </div>
+        
+        <div class="xhe-panel" data-testid="ai-role-panel">
+          <h2 class="xhe-panel-title">AI Role Definition</h2>
+          <ul class="xhe-list">
+            <li class="xhe-list-item">
+              <span>Explain consequences</span>
+              <span class="xhe-tag xhe-tag--green">ALLOWED</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Simulate outcomes</span>
+              <span class="xhe-tag xhe-tag--green">ALLOWED</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Assist users</span>
+              <span class="xhe-tag xhe-tag--green">ALLOWED</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Flag anomalies</span>
+              <span class="xhe-tag xhe-tag--green">ALLOWED</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Make decisions</span>
+              <span class="xhe-tag xhe-tag--red">FORBIDDEN</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Reach consensus</span>
+              <span class="xhe-tag xhe-tag--red">FORBIDDEN</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="available-models-panel">
+        <h2 class="xhe-panel-title">Available Models</h2>
+        <div id="models-list" class="flex flex-col gap-sm">
+          <p class="text-muted">Checking for available models...</p>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="ai-query-panel">
+        <h2 class="xhe-panel-title">Query AI Agent</h2>
+        <p class="text-secondary mb-md">
+          Ask the AI agent to explain, simulate, or analyze. All responses are advisory only.
+        </p>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Model</label>
+          <select class="xhe-input" id="selected-model" data-testid="model-select" style="background: var(--bg-void);">
+            <option value="llama2">llama2 (Explanation)</option>
+            <option value="mistral">mistral (Simulation)</option>
+            <option value="phi">phi (Analysis)</option>
+          </select>
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Query Type</label>
+          <select class="xhe-input" id="query-type" data-testid="query-type-select" style="background: var(--bg-void);">
+            <option value="explain">Explain Concept</option>
+            <option value="simulate">Simulate Scenario</option>
+            <option value="analyze">Analyze Data</option>
+            <option value="custom">Custom Query</option>
+          </select>
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Your Query</label>
+          <textarea class="xhe-textarea" id="ai-query" data-testid="ai-query-input"
+                    placeholder="What would you like the AI agent to help with?"></textarea>
+        </div>
+        
+        <button class="xhe-btn xhe-btn--cyan" onclick="queryAI()" data-testid="query-ai-btn" id="query-btn">
+          Send Query
+        </button>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="ai-response-panel">
+        <h2 class="xhe-panel-title">AI Response</h2>
+        <div class="xhe-alert xhe-alert--warning" style="margin-bottom: 1rem;">
+          <strong>ADVISORY ONLY:</strong> This response is non-authoritative.
+        </div>
+        <div id="ai-response" class="xhe-code" style="min-height: 100px; white-space: pre-wrap;">
+          <span class="text-muted">AI response will appear here...</span>
+        </div>
+        <div class="mt-md flex gap-md">
+          <span class="text-muted" style="font-size: 0.75rem;" id="response-meta"></span>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="setup-instructions-panel">
+        <h2 class="xhe-panel-title">Setup Instructions</h2>
+        <p class="text-secondary mb-md">
+          To use AI agents, you need to run Ollama locally:
+        </p>
+        <div class="xhe-code">
+# Install Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Start Ollama server
+ollama serve
+
+# Pull recommended models
+ollama pull llama2
+ollama pull mistral
+ollama pull phi</div>
+        <p class="text-muted mt-md" style="font-size: 0.75rem;">
+          AI agents run entirely locally. No data leaves your machine.
+        </p>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="console-panel">
+        <h2 class="xhe-panel-title">AI Console</h2>
+        <div class="xhe-console" id="xhe-console"></div>
+      </section>
+    </main>
+  </div>
+  
+  <script src="js/core.js"></script>
+  <script>
+    async function checkOllamaStatus() {
+      const statusEl = document.getElementById('ollama-status');
+      statusEl.textContent = 'Checking...';
+      statusEl.className = 'xhe-status';
+      
+      const available = await xheAI.checkAvailability();
+      
+      if (available) {
+        statusEl.textContent = 'Connected';
+        statusEl.className = 'xhe-status xhe-status--active';
+        XheUtils.log('Ollama connected successfully', 'success', 'xhe-console');
+        await loadModels();
+      } else {
+        statusEl.textContent = 'Disconnected';
+        statusEl.className = 'xhe-status xhe-status--error';
+        XheUtils.log('Ollama not available. Start with: ollama serve', 'error', 'xhe-console');
+      }
+    }
+    
+    async function loadModels() {
+      const models = await xheAI.getModels();
+      const container = document.getElementById('models-list');
+      
+      if (models.length === 0) {
+        container.innerHTML = '<p class="text-muted">No models found. Pull models with: ollama pull llama2</p>';
+        return;
+      }
+      
+      container.innerHTML = models.map(model => `
+        <div class="xhe-pulsar" data-testid="model-${model.name}">
+          <span class="xhe-pulsar-type">${model.name}</span>
+          <span class="text-secondary" style="font-size: 0.75rem;">${formatSize(model.size)}</span>
+          <span class="xhe-tag xhe-tag--green">READY</span>
+        </div>
+      `).join('');
+      
+      // Update select options
+      const select = document.getElementById('selected-model');
+      select.innerHTML = models.map(model => 
+        `<option value="${model.name}">${model.name}</option>`
+      ).join('');
+    }
+    
+    function formatSize(bytes) {
+      if (!bytes) return 'Unknown size';
+      const gb = bytes / (1024 * 1024 * 1024);
+      return `${gb.toFixed(1)} GB`;
+    }
+    
+    async function queryAI() {
+      const model = document.getElementById('selected-model').value;
+      const queryType = document.getElementById('query-type').value;
+      const query = document.getElementById('ai-query').value.trim();
+      
+      if (!query) {
+        XheUtils.log('Query is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      const responseEl = document.getElementById('ai-response');
+      const metaEl = document.getElementById('response-meta');
+      const btn = document.getElementById('query-btn');
+      
+      btn.disabled = true;
+      btn.innerHTML = '<span class="xhe-loading"></span> Processing...';
+      responseEl.innerHTML = '<span class="text-muted">Processing query...</span>';
+      
+      XheUtils.log(`Querying ${model}: ${query.slice(0, 50)}...`, 'info', 'xhe-console');
+      
+      let result;
+      
+      switch (queryType) {
+        case 'explain':
+          result = await xheAI.explain(query);
+          break;
+        case 'simulate':
+          result = await xheAI.simulate(query);
+          break;
+        case 'analyze':
+          result = await xheAI.flagAnomalies(query);
+          break;
+        default:
+          result = await xheAI.query(query, model);
+      }
+      
+      btn.disabled = false;
+      btn.innerHTML = 'Send Query';
+      
+      if (result.success) {
+        responseEl.textContent = result.response;
+        metaEl.textContent = `Model: ${result.model} | Advisory: Yes | Authoritative: No`;
+        XheUtils.log('Response received (advisory only)', 'success', 'xhe-console');
+        
+        // Record in pulsar
+        await xheKernel.createPulsar('AI_QUERY', {
+          model: result.model,
+          queryType,
+          queryPreview: query.slice(0, 100),
+          advisory: true
+        });
+      } else {
+        responseEl.innerHTML = `<span class="text-red">Error: ${result.error}</span>`;
+        metaEl.textContent = '';
+        XheUtils.log(`Error: ${result.error}`, 'error', 'xhe-console');
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initXhe();
+      await checkOllamaStatus();
+      XheUtils.log('AI Agents module initialized', 'info', 'xhe-console');
+      XheUtils.log('Remember: AI responses are ADVISORY ONLY', 'warn', 'xhe-console');
+    });
+  </script>
+</body>
+</html>

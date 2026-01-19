@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I·AM·Xhe — Identity</title>
+  <link rel="stylesheet" href="css/core.css">
+</head>
+<body>
+  <div class="scanline-overlay"></div>
+  
+  <button class="mobile-toggle" onclick="XheNav.toggleMobileNav()" data-testid="mobile-nav-toggle">☰</button>
+  
+  <div class="xhe-shell">
+    <aside class="xhe-sidebar">
+      <a href="99-constitution.html" class="xhe-logo" data-testid="logo">I·AM·Xhe</a>
+      <nav class="xhe-nav" id="xhe-nav"></nav>
+    </aside>
+    
+    <main class="xhe-main" data-testid="identity-main">
+      <header class="xhe-page-header">
+        <h1 class="xhe-page-title">02 — Identity</h1>
+        <p class="xhe-page-subtitle">Master identity, DID, deterministic derivation</p>
+      </header>
+      
+      <div class="xhe-alert" data-testid="identity-principle">
+        <strong>PRINCIPLE:</strong> Identity is inalienable — soul-bound, deterministic, and non-transferable.
+      </div>
+      
+      <section id="no-identity-section" data-testid="no-identity-section">
+        <div class="xhe-panel">
+          <h2 class="xhe-panel-title">Create Sovereign Identity</h2>
+          <p class="text-secondary mb-lg">
+            Generate a new sovereign identity with a unique mnemonic seed. 
+            This seed is your master key — guard it carefully.
+          </p>
+          
+          <button class="xhe-btn xhe-btn--green" onclick="generateNewIdentity()" data-testid="generate-identity-btn">
+            Generate New Identity
+          </button>
+          
+          <hr class="xhe-divider">
+          
+          <h3 class="xhe-panel-title">Recover Existing Identity</h3>
+          <p class="text-secondary mb-md">
+            Enter your mnemonic phrase to recover your sovereign identity.
+          </p>
+          
+          <div class="xhe-form-group">
+            <label class="xhe-label">Mnemonic Phrase (12 words)</label>
+            <textarea class="xhe-textarea" id="recovery-mnemonic" 
+                      data-testid="recovery-mnemonic-input"
+                      placeholder="Enter your 12-word mnemonic phrase..."></textarea>
+          </div>
+          
+          <button class="xhe-btn xhe-btn--purple" onclick="recoverIdentity()" data-testid="recover-identity-btn">
+            Recover Identity
+          </button>
+        </div>
+      </section>
+      
+      <section id="has-identity-section" style="display: none;" data-testid="has-identity-section">
+        <div class="xhe-identity-card" data-testid="identity-card">
+          <div class="flex justify-between items-center mb-lg">
+            <h2 class="xhe-panel-title" style="margin: 0;">Your Sovereign Identity</h2>
+            <span class="xhe-status xhe-status--active">Active</span>
+          </div>
+          
+          <div class="xhe-form-group">
+            <label class="xhe-label">Decentralized Identifier (DID)</label>
+            <div class="xhe-hash" id="identity-did" data-testid="identity-did"></div>
+          </div>
+          
+          <div class="xhe-form-group">
+            <label class="xhe-label">Signing Key</label>
+            <div class="xhe-hash xhe-sensitive" id="identity-signing-key" data-testid="identity-signing-key"></div>
+          </div>
+          
+          <div class="xhe-form-group">
+            <label class="xhe-label">Encryption Key</label>
+            <div class="xhe-hash xhe-sensitive" id="identity-encryption-key" data-testid="identity-encryption-key"></div>
+          </div>
+          
+          <div class="xhe-form-group">
+            <label class="xhe-label">Mnemonic Phrase <span class="text-red">(KEEP SECRET)</span></label>
+            <div class="xhe-hash xhe-sensitive" id="identity-mnemonic" data-testid="identity-mnemonic"></div>
+          </div>
+          
+          <div class="flex gap-md mt-lg">
+            <button class="xhe-btn" onclick="copyMnemonic()" data-testid="copy-mnemonic-btn">
+              Copy Mnemonic
+            </button>
+            <button class="xhe-btn xhe-btn--red" onclick="confirmDestroy()" data-testid="destroy-identity-btn">
+              Destroy Identity
+            </button>
+          </div>
+        </div>
+        
+        <div class="xhe-grid mt-lg">
+          <div class="xhe-panel" data-testid="identity-properties-panel">
+            <h3 class="xhe-panel-title">Identity Properties</h3>
+            <ul class="xhe-list">
+              <li class="xhe-list-item">
+                <span>Soul-bound</span>
+                <span class="xhe-tag xhe-tag--green">YES</span>
+              </li>
+              <li class="xhe-list-item">
+                <span>Deterministic</span>
+                <span class="xhe-tag xhe-tag--green">YES</span>
+              </li>
+              <li class="xhe-list-item">
+                <span>Non-transferable</span>
+                <span class="xhe-tag xhe-tag--green">YES</span>
+              </li>
+              <li class="xhe-list-item">
+                <span>Recoverable</span>
+                <span class="xhe-tag xhe-tag--green">YES</span>
+              </li>
+            </ul>
+          </div>
+          
+          <div class="xhe-panel" data-testid="identity-actions-panel">
+            <h3 class="xhe-panel-title">Quick Actions</h3>
+            <div class="flex flex-col gap-sm">
+              <a href="03-policy-keys.html" class="xhe-btn w-full" data-testid="goto-policy-keys-btn">
+                Issue Policy Keys →
+              </a>
+              <a href="08-karma-rewards.html" class="xhe-btn w-full" data-testid="goto-karma-btn">
+                View Karma →
+              </a>
+              <a href="09-social-layer.html" class="xhe-btn w-full" data-testid="goto-social-btn">
+                Social Layer →
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="did-explanation-panel">
+        <h2 class="xhe-panel-title">Understanding DIDs</h2>
+        <p class="text-secondary mb-md">
+          A Decentralized Identifier (DID) is a new type of identifier that enables verifiable, 
+          decentralized digital identity. DIDs are URIs that associate a DID subject with a DID 
+          document allowing trustable interactions.
+        </p>
+        
+        <div class="xhe-code">
+did:xhe:&lt;32-character-hex-string&gt;
+
+Example:
+did:xhe:a1b2c3d4e5f6789012345678abcdef90</div>
+        
+        <p class="text-muted mt-md" style="font-size: 0.75rem;">
+          The DID is derived deterministically from your mnemonic seed.
+        </p>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="console-panel">
+        <h2 class="xhe-panel-title">Identity Console</h2>
+        <div class="xhe-console" id="xhe-console"></div>
+      </section>
+      
+      <!-- Destroy Confirmation Modal -->
+      <div class="xhe-modal-overlay" id="destroy-modal" data-testid="destroy-modal">
+        <div class="xhe-modal">
+          <div class="xhe-modal-header">
+            <h3 class="xhe-modal-title">Destroy Identity</h3>
+            <button class="xhe-modal-close" onclick="closeDestroyModal()">&times;</button>
+          </div>
+          <div class="xhe-modal-body">
+            <div class="xhe-alert xhe-alert--error">
+              <strong>WARNING:</strong> This action is irreversible unless you have your mnemonic phrase.
+            </div>
+            <p class="text-secondary">
+              Type <span class="text-red">"DESTROY"</span> to confirm:
+            </p>
+            <input type="text" class="xhe-input mt-md" id="destroy-confirm-input" 
+                   data-testid="destroy-confirm-input"
+                   placeholder="Type DESTROY">
+          </div>
+          <div class="xhe-modal-footer">
+            <button class="xhe-btn" onclick="closeDestroyModal()" data-testid="cancel-destroy-btn">
+              Cancel
+            </button>
+            <button class="xhe-btn xhe-btn--red" onclick="destroyIdentity()" data-testid="confirm-destroy-btn">
+              Destroy
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script src="js/core.js"></script>
+  <script>
+    let currentIdentity = null;
+    
+    async function generateNewIdentity() {
+      try {
+        currentIdentity = await xheIdentity.createIdentity();
+        displayIdentity(currentIdentity);
+        XheUtils.log('New sovereign identity generated', 'success', 'xhe-console');
+        XheUtils.log(`DID: ${currentIdentity.did}`, 'info', 'xhe-console');
+        XheUtils.log('IMPORTANT: Save your mnemonic phrase securely!', 'warn', 'xhe-console');
+      } catch (error) {
+        XheUtils.log(`Error: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    async function recoverIdentity() {
+      const mnemonic = document.getElementById('recovery-mnemonic').value.trim();
+      
+      if (!mnemonic) {
+        XheUtils.log('Mnemonic phrase is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      const words = mnemonic.split(/\s+/);
+      if (words.length !== 12) {
+        XheUtils.log('Mnemonic must be exactly 12 words', 'error', 'xhe-console');
+        return;
+      }
+      
+      try {
+        currentIdentity = await xheIdentity.recoverIdentity(mnemonic);
+        displayIdentity(currentIdentity);
+        XheUtils.log('Identity recovered successfully', 'success', 'xhe-console');
+        XheUtils.log(`DID: ${currentIdentity.did}`, 'info', 'xhe-console');
+      } catch (error) {
+        XheUtils.log(`Recovery failed: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    function displayIdentity(identity) {
+      document.getElementById('no-identity-section').style.display = 'none';
+      document.getElementById('has-identity-section').style.display = 'block';
+      
+      document.getElementById('identity-did').textContent = identity.did;
+      document.getElementById('identity-signing-key').textContent = identity.publicKeys.signing;
+      document.getElementById('identity-encryption-key').textContent = identity.publicKeys.encryption;
+      document.getElementById('identity-mnemonic').textContent = identity.mnemonic;
+    }
+    
+    function copyMnemonic() {
+      if (currentIdentity) {
+        navigator.clipboard.writeText(currentIdentity.mnemonic);
+        XheUtils.log('Mnemonic copied to clipboard', 'success', 'xhe-console');
+      }
+    }
+    
+    function confirmDestroy() {
+      document.getElementById('destroy-modal').classList.add('active');
+    }
+    
+    function closeDestroyModal() {
+      document.getElementById('destroy-modal').classList.remove('active');
+      document.getElementById('destroy-confirm-input').value = '';
+    }
+    
+    async function destroyIdentity() {
+      const confirm = document.getElementById('destroy-confirm-input').value;
+      
+      if (confirm !== 'DESTROY') {
+        XheUtils.log('Confirmation text does not match', 'error', 'xhe-console');
+        return;
+      }
+      
+      await xheStorage.clear('identity');
+      currentIdentity = null;
+      
+      closeDestroyModal();
+      document.getElementById('no-identity-section').style.display = 'block';
+      document.getElementById('has-identity-section').style.display = 'none';
+      
+      XheUtils.log('Identity destroyed', 'warn', 'xhe-console');
+    }
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initXhe();
+      
+      currentIdentity = await xheIdentity.getCurrentIdentity();
+      
+      if (currentIdentity) {
+        displayIdentity(currentIdentity);
+        XheUtils.log('Existing identity loaded', 'info', 'xhe-console');
+      } else {
+        XheUtils.log('No identity found. Create or recover one.', 'info', 'xhe-console');
+      }
+    });
+  </script>
+</body>
+</html>

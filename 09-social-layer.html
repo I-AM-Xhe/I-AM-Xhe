@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I·AM·Xhe — Social Layer</title>
+  <link rel="stylesheet" href="css/core.css">
+</head>
+<body>
+  <div class="scanline-overlay"></div>
+  
+  <button class="mobile-toggle" onclick="XheNav.toggleMobileNav()" data-testid="mobile-nav-toggle">☰</button>
+  
+  <div class="xhe-shell">
+    <aside class="xhe-sidebar">
+      <a href="99-constitution.html" class="xhe-logo" data-testid="logo">I·AM·Xhe</a>
+      <nav class="xhe-nav" id="xhe-nav"></nav>
+    </aside>
+    
+    <main class="xhe-main" data-testid="social-main">
+      <header class="xhe-page-header">
+        <h1 class="xhe-page-title">09 — Social Layer</h1>
+        <p class="xhe-page-subtitle">Immutable public discourse layer</p>
+      </header>
+      
+      <div class="xhe-alert" data-testid="social-info">
+        All posts are append-only and immutable. Retractions are recorded as separate pulsars 
+        but do not delete the original content. Every voice is permanent.
+      </div>
+      
+      <section class="xhe-panel" data-testid="compose-panel">
+        <h2 class="xhe-panel-title">Compose Post</h2>
+        
+        <div id="no-identity-warning" class="xhe-alert xhe-alert--warning mb-md" style="display: none;">
+          <strong>Identity Required:</strong> <a href="02-identity.html" class="text-cyan">Create an identity</a> to post.
+        </div>
+        
+        <div id="compose-form">
+          <div class="xhe-form-group">
+            <label class="xhe-label">Your Message</label>
+            <textarea class="xhe-textarea" id="post-content" data-testid="post-content-input"
+                      placeholder="What's on your mind? Remember: posts are immutable."
+                      maxlength="1000"></textarea>
+            <div class="flex justify-between mt-sm">
+              <span class="text-muted" style="font-size: 0.75rem;">Max 1000 characters</span>
+              <span class="text-muted" style="font-size: 0.75rem;" id="char-count">0/1000</span>
+            </div>
+          </div>
+          
+          <div class="flex gap-md items-center">
+            <button class="xhe-btn xhe-btn--green" onclick="createPost()" data-testid="create-post-btn">
+              Publish to Ledger
+            </button>
+            <span class="text-muted" style="font-size: 0.75rem;">
+              ⚠️ Cannot be deleted, only retracted
+            </span>
+          </div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="feed-panel">
+        <div class="flex justify-between items-center mb-md">
+          <h2 class="xhe-panel-title" style="margin: 0;">Public Feed</h2>
+          <button class="xhe-btn" onclick="refreshFeed()" data-testid="refresh-feed-btn">
+            Refresh
+          </button>
+        </div>
+        
+        <div id="posts-feed" class="flex flex-col gap-md">
+          <p class="text-muted">No posts yet. Be the first to contribute.</p>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="my-posts-panel">
+        <h2 class="xhe-panel-title">My Posts</h2>
+        <div id="my-posts" class="flex flex-col gap-md">
+          <p class="text-muted">You haven't posted yet.</p>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="social-stats-panel">
+        <h2 class="xhe-panel-title">Social Statistics</h2>
+        <div class="xhe-grid">
+          <div class="flex justify-between">
+            <span class="text-secondary">Total Posts</span>
+            <span class="text-cyan" id="total-posts">0</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-secondary">Total Authors</span>
+            <span class="text-green" id="total-authors">0</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-secondary">Your Posts</span>
+            <span class="text-purple" id="your-posts">0</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-secondary">Retracted</span>
+            <span class="text-red" id="retracted-posts">0</span>
+          </div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="console-panel">
+        <h2 class="xhe-panel-title">Social Console</h2>
+        <div class="xhe-console" id="xhe-console"></div>
+      </section>
+      
+      <!-- Reply Modal -->
+      <div class="xhe-modal-overlay" id="reply-modal" data-testid="reply-modal">
+        <div class="xhe-modal">
+          <div class="xhe-modal-header">
+            <h3 class="xhe-modal-title">Reply to Post</h3>
+            <button class="xhe-modal-close" onclick="closeReplyModal()">&times;</button>
+          </div>
+          <div class="xhe-modal-body">
+            <div id="original-post-preview" class="xhe-code mb-md" style="max-height: 100px; overflow-y: auto;"></div>
+            <div class="xhe-form-group">
+              <label class="xhe-label">Your Reply</label>
+              <textarea class="xhe-textarea" id="reply-content" data-testid="reply-content-input"
+                        placeholder="Write your reply..."></textarea>
+            </div>
+          </div>
+          <div class="xhe-modal-footer">
+            <button class="xhe-btn" onclick="closeReplyModal()" data-testid="cancel-reply-btn">
+              Cancel
+            </button>
+            <button class="xhe-btn xhe-btn--green" onclick="submitReply()" data-testid="submit-reply-btn">
+              Submit Reply
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script src="js/core.js"></script>
+  <script>
+    let currentDid = null;
+    let replyToPostId = null;
+    
+    async function init() {
+      const identity = await xheIdentity.getCurrentIdentity();
+      
+      if (!identity) {
+        document.getElementById('no-identity-warning').style.display = 'block';
+        document.getElementById('compose-form').style.opacity = '0.5';
+        document.getElementById('compose-form').style.pointerEvents = 'none';
+      } else {
+        currentDid = identity.did;
+      }
+      
+      // Character counter
+      document.getElementById('post-content').addEventListener('input', function() {
+        document.getElementById('char-count').textContent = `${this.value.length}/1000`;
+      });
+      
+      await refreshFeed();
+      await loadMyPosts();
+      await loadStats();
+    }
+    
+    async function createPost() {
+      const content = document.getElementById('post-content').value.trim();
+      
+      if (!content) {
+        XheUtils.log('Post content is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      if (!currentDid) {
+        XheUtils.log('Identity required to post', 'error', 'xhe-console');
+        return;
+      }
+      
+      try {
+        const post = await xheSocial.createPost(currentDid, content);
+        
+        XheUtils.log(`Post published: ${XheUtils.formatHash(post.id)}`, 'success', 'xhe-console');
+        
+        document.getElementById('post-content').value = '';
+        document.getElementById('char-count').textContent = '0/1000';
+        
+        await refreshFeed();
+        await loadMyPosts();
+        await loadStats();
+        
+      } catch (error) {
+        XheUtils.log(`Error: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    async function refreshFeed() {
+      const posts = await xheSocial.getPosts(20);
+      const container = document.getElementById('posts-feed');
+      
+      if (posts.length === 0) {
+        container.innerHTML = '<p class="text-muted">No posts yet. Be the first to contribute.</p>';
+        return;
+      }
+      
+      container.innerHTML = posts.map(post => renderPost(post)).join('');
+    }
+    
+    function renderPost(post) {
+      const isOwn = post.author === currentDid;
+      const authorDisplay = XheUtils.formatHash(post.author, 6);
+      const timeAgo = getTimeAgo(post.created);
+      
+      return `
+        <div class="xhe-panel" style="margin-bottom: 0;" data-testid="post-${post.id.slice(0, 8)}">
+          <div class="flex justify-between items-center mb-sm">
+            <span class="text-cyan" style="font-size: 0.875rem;">${authorDisplay}</span>
+            <span class="text-muted" style="font-size: 0.75rem;">${timeAgo}</span>
+          </div>
+          <p class="text-primary mb-md" style="line-height: 1.6;">${escapeHtml(post.content)}</p>
+          <div class="flex gap-md">
+            <button class="xhe-btn" style="padding: 4px 8px; font-size: 0.75rem;" 
+                    onclick="openReplyModal('${post.id}', '${escapeHtml(post.content).slice(0, 50)}...')"
+                    data-testid="reply-btn-${post.id.slice(0, 8)}">
+              Reply
+            </button>
+            ${isOwn ? `
+              <button class="xhe-btn xhe-btn--red" style="padding: 4px 8px; font-size: 0.75rem;"
+                      onclick="retractPost('${post.id}')"
+                      data-testid="retract-btn-${post.id.slice(0, 8)}">
+                Retract
+              </button>
+            ` : ''}
+            <span class="text-muted" style="font-size: 0.75rem; margin-left: auto;">
+              P#${post.pulseIndex}
+            </span>
+          </div>
+        </div>
+      `;
+    }
+    
+    async function loadMyPosts() {
+      if (!currentDid) return;
+      
+      const posts = await xheSocial.getPostsByAuthor(currentDid);
+      const container = document.getElementById('my-posts');
+      
+      if (posts.length === 0) {
+        container.innerHTML = '<p class="text-muted">You haven\'t posted yet.</p>';
+        return;
+      }
+      
+      container.innerHTML = posts.slice(0, 5).map(post => `
+        <div class="xhe-pulsar" data-testid="my-post-${post.id.slice(0, 8)}">
+          <span class="text-secondary" style="flex: 1;">${post.content.slice(0, 50)}${post.content.length > 50 ? '...' : ''}</span>
+          <span class="text-muted" style="font-size: 0.75rem;">P#${post.pulseIndex}</span>
+        </div>
+      `).join('');
+    }
+    
+    async function loadStats() {
+      const allPosts = await xheSocial.getPosts(1000);
+      const authors = new Set(allPosts.map(p => p.author));
+      const myPosts = currentDid ? allPosts.filter(p => p.author === currentDid) : [];
+      
+      // Count retractions
+      const pulsars = await xheKernel.getAllPulsars();
+      const retractions = pulsars.filter(p => p.type === 'POST_RETRACT').length;
+      
+      document.getElementById('total-posts').textContent = allPosts.length;
+      document.getElementById('total-authors').textContent = authors.size;
+      document.getElementById('your-posts').textContent = myPosts.length;
+      document.getElementById('retracted-posts').textContent = retractions;
+    }
+    
+    function openReplyModal(postId, preview) {
+      replyToPostId = postId;
+      document.getElementById('original-post-preview').textContent = preview;
+      document.getElementById('reply-modal').classList.add('active');
+    }
+    
+    function closeReplyModal() {
+      replyToPostId = null;
+      document.getElementById('reply-content').value = '';
+      document.getElementById('reply-modal').classList.remove('active');
+    }
+    
+    async function submitReply() {
+      const content = document.getElementById('reply-content').value.trim();
+      
+      if (!content) {
+        XheUtils.log('Reply content is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      try {
+        const reply = await xheSocial.createPost(currentDid, content, replyToPostId);
+        XheUtils.log(`Reply published: ${XheUtils.formatHash(reply.id)}`, 'success', 'xhe-console');
+        
+        closeReplyModal();
+        await refreshFeed();
+        await loadStats();
+        
+      } catch (error) {
+        XheUtils.log(`Error: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    async function retractPost(postId) {
+      if (!confirm('Retract this post? The original content will remain visible but marked as retracted.')) {
+        return;
+      }
+      
+      await xheKernel.createPulsar('POST_RETRACT', {
+        originalPostId: postId,
+        retractedAt: Date.now()
+      });
+      
+      XheUtils.log(`Post retracted: ${XheUtils.formatHash(postId)}`, 'warn', 'xhe-console');
+      await loadStats();
+    }
+    
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    function getTimeAgo(timestamp) {
+      const seconds = Math.floor((Date.now() - timestamp) / 1000);
+      if (seconds < 60) return 'just now';
+      if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+      return `${Math.floor(seconds / 86400)}d ago`;
+    }
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initXhe();
+      await init();
+      XheUtils.log('Social Layer initialized', 'info', 'xhe-console');
+    });
+  </script>
+</body>
+</html>

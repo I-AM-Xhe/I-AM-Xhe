@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I·AM·Xhe — Constitution</title>
+  <link rel="stylesheet" href="css/core.css">
+</head>
+<body>
+  <div class="scanline-overlay"></div>
+  
+  <button class="mobile-toggle" onclick="XheNav.toggleMobileNav()" data-testid="mobile-nav-toggle">☰</button>
+  
+  <div class="xhe-shell">
+    <aside class="xhe-sidebar">
+      <a href="99-constitution.html" class="xhe-logo" data-testid="logo">I·AM·Xhe</a>
+      <nav class="xhe-nav" id="xhe-nav"></nav>
+      
+      <div class="mt-lg" style="margin-top: auto;">
+        <div class="xhe-status" id="system-status">
+          <span>System Status</span>
+        </div>
+        <div class="mt-sm text-muted" style="font-size: 0.75rem;">
+          v1.0.0 — Genesis
+        </div>
+      </div>
+    </aside>
+    
+    <main class="xhe-main" data-testid="constitution-main">
+      <header class="xhe-page-header">
+        <h1 class="xhe-page-title">The Constitution</h1>
+        <p class="xhe-page-subtitle">Genesis-Hardened Constitutional Release — January 2026</p>
+      </header>
+      
+      <div class="xhe-alert xhe-alert--success" data-testid="genesis-alert">
+        <strong>GENESIS COMPLETE</strong> — This release is production-ready. The constitutional core is closed.
+      </div>
+      
+      <section class="xhe-panel" data-testid="overview-panel">
+        <h2 class="xhe-panel-title">Overview</h2>
+        <p class="text-secondary mb-md">
+          I·AM·Xhe is a production-ready, offline-first, identity-sovereign civilization substrate 
+          that operates as a kernel, operating environment, and network protocol instantiated initially 
+          in the browser but not bound to it.
+        </p>
+        <p class="text-secondary">
+          The browser functions as the <span class="text-cyan">genesis lobby</span>, not the authority.
+        </p>
+      </section>
+      
+      <section class="mb-lg">
+        <h2 class="xhe-panel-title mb-md">Core Principles</h2>
+        
+        <div class="xhe-principle" data-testid="principle-identity">
+          <h3 class="xhe-principle-title">Identity is Inalienable</h3>
+          <p class="xhe-principle-text">Soul-bound, deterministic, non-transferable.</p>
+        </div>
+        
+        <div class="xhe-principle" data-testid="principle-authority">
+          <h3 class="xhe-principle-title">Authority is Explicit</h3>
+          <p class="xhe-principle-text">All power is delegated via revocable policy-keys.</p>
+        </div>
+        
+        <div class="xhe-principle" data-testid="principle-memory">
+          <h3 class="xhe-principle-title">Memory Replaces Time</h3>
+          <p class="xhe-principle-text">There are no clocks, deadlines, or timestamps — only ordered pulses.</p>
+        </div>
+        
+        <div class="xhe-principle" data-testid="principle-history">
+          <h3 class="xhe-principle-title">History is Eternal</h3>
+          <p class="xhe-principle-text">Append-only, hash-linked, replayable forever.</p>
+        </div>
+        
+        <div class="xhe-principle" data-testid="principle-ai">
+          <h3 class="xhe-principle-title">AI are Agents, Not Rulers</h3>
+          <p class="xhe-principle-text">They advise, explain, and simulate — never decide.</p>
+        </div>
+        
+        <div class="xhe-principle" data-testid="principle-reputation">
+          <h3 class="xhe-principle-title">Reputation is Earned</h3>
+          <p class="xhe-principle-text">Non-transferable, non-financial, non-speculative.</p>
+        </div>
+        
+        <div class="xhe-principle" data-testid="principle-law">
+          <h3 class="xhe-principle-title">Law is Executable</h3>
+          <p class="xhe-principle-text">Deterministic, inspectable, and forkable.</p>
+        </div>
+      </section>
+      
+      <section class="xhe-panel" data-testid="guarantees-panel">
+        <h2 class="xhe-panel-title">Canonical Production Guarantees</h2>
+        <ul class="xhe-list">
+          <li class="xhe-list-item">
+            <span>Pulsar schema is canonical, frozen, and hash-sealed</span>
+            <span class="xhe-tag xhe-tag--green">ENFORCED</span>
+          </li>
+          <li class="xhe-list-item">
+            <span>Kernel execution is fully closed and deterministic</span>
+            <span class="xhe-tag xhe-tag--green">ENFORCED</span>
+          </li>
+          <li class="xhe-list-item">
+            <span>AI outputs are advisory only and never authoritative</span>
+            <span class="xhe-tag xhe-tag--green">ENFORCED</span>
+          </li>
+          <li class="xhe-list-item">
+            <span>Export / import survival ritual is implemented</span>
+            <span class="xhe-tag xhe-tag--green">ENFORCED</span>
+          </li>
+          <li class="xhe-list-item">
+            <span>Forks are first-class, visible, and explicitly selectable</span>
+            <span class="xhe-tag xhe-tag--green">ENFORCED</span>
+          </li>
+          <li class="xhe-list-item">
+            <span>Real IPFS via Helia is wired and operational</span>
+            <span class="xhe-tag xhe-tag--green">ENFORCED</span>
+          </li>
+          <li class="xhe-list-item">
+            <span>Recovery has been tested on a clean machine</span>
+            <span class="xhe-tag xhe-tag--green">ENFORCED</span>
+          </li>
+        </ul>
+      </section>
+      
+      <section class="xhe-grid" data-testid="modules-grid">
+        <div class="xhe-panel">
+          <h3 class="xhe-panel-title">Execution Layer</h3>
+          <div class="flex flex-col gap-sm">
+            <a href="00-kernel.html" class="xhe-btn w-full" data-testid="btn-kernel">00 — Kernel</a>
+            <a href="01-entropy.html" class="xhe-btn w-full" data-testid="btn-entropy">01 — Entropy</a>
+            <a href="02-identity.html" class="xhe-btn w-full" data-testid="btn-identity">02 — Identity</a>
+          </div>
+        </div>
+        
+        <div class="xhe-panel">
+          <h3 class="xhe-panel-title">Authority Layer</h3>
+          <div class="flex flex-col gap-sm">
+            <a href="03-policy-keys.html" class="xhe-btn w-full" data-testid="btn-policy">03 — Policy Keys</a>
+            <a href="04-ai-agents.html" class="xhe-btn w-full" data-testid="btn-ai">04 — AI Agents</a>
+            <a href="05-addressing-rails.html" class="xhe-btn w-full" data-testid="btn-addressing">05 — Addressing</a>
+          </div>
+        </div>
+        
+        <div class="xhe-panel">
+          <h3 class="xhe-panel-title">Persistence Layer</h3>
+          <div class="flex flex-col gap-sm">
+            <a href="06-storage-rendering.html" class="xhe-btn w-full" data-testid="btn-storage">06 — Storage</a>
+            <a href="07-revocation-compensation.html" class="xhe-btn w-full" data-testid="btn-revocation">07 — Revocation</a>
+          </div>
+        </div>
+        
+        <div class="xhe-panel">
+          <h3 class="xhe-panel-title">Social Layer</h3>
+          <div class="flex flex-col gap-sm">
+            <a href="08-karma-rewards.html" class="xhe-btn w-full" data-testid="btn-karma">08 — Karma</a>
+            <a href="09-social-layer.html" class="xhe-btn w-full" data-testid="btn-social">09 — Social</a>
+            <a href="10-fork-governance.html" class="xhe-btn w-full" data-testid="btn-governance">10 — Governance</a>
+          </div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="verification-panel">
+        <h2 class="xhe-panel-title">Verification & Audit</h2>
+        <p class="text-secondary mb-md">
+          Every action in the system is recorded as an immutable pulsar. 
+          Verify system integrity and explore the full audit trail.
+        </p>
+        <a href="11-verification-explorer.html" class="xhe-btn xhe-btn--green" data-testid="btn-explorer">
+          Open Verification Explorer →
+        </a>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="survival-panel">
+        <h2 class="xhe-panel-title">Survival Ritual</h2>
+        <p class="text-secondary mb-md">
+          Export your complete sovereign state. Import it anywhere. 
+          The system assumes networks fail, platforms die, and vendors disappear.
+        </p>
+        <div class="flex gap-md">
+          <button class="xhe-btn" onclick="exportArchive()" data-testid="btn-export">Export Archive</button>
+          <label class="xhe-btn xhe-btn--purple" data-testid="btn-import">
+            Import Archive
+            <input type="file" accept=".json" onchange="importArchive(event)" style="display: none;">
+          </label>
+        </div>
+      </section>
+      
+      <hr class="xhe-divider">
+      
+      <footer class="text-muted" style="font-size: 0.75rem;">
+        <p>I·AM·Xhe v1.0.0 — Genesis-Hardened Constitutional Release</p>
+        <p class="mt-sm">
+          This is not a dApp. Not a blockchain. Not a social network. Not an AI platform.<br>
+          It is a <span class="text-cyan">sovereign execution fabric</span> capable of hosting all of the above 
+          without becoming dependent on any of them.
+        </p>
+      </footer>
+    </main>
+  </div>
+  
+  <script src="js/core.js"></script>
+  <script>
+    async function exportArchive() {
+      if (xheSurvival) {
+        await xheSurvival.exportArchive();
+        XheUtils.log('Archive exported successfully', 'success');
+      }
+    }
+    
+    async function importArchive(event) {
+      const file = event.target.files[0];
+      if (file && xheSurvival) {
+        try {
+          await xheSurvival.importArchive(file);
+          XheUtils.log('Archive imported successfully', 'success');
+          location.reload();
+        } catch (error) {
+          XheUtils.log('Import failed: ' + error.message, 'error');
+        }
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initXhe();
+      
+      // Update system status
+      const statusEl = document.getElementById('system-status');
+      const identity = await xheIdentity.getCurrentIdentity();
+      
+      if (identity) {
+        statusEl.classList.add('xhe-status--active');
+        statusEl.innerHTML = '<span>Identity Active</span>';
+      } else {
+        statusEl.classList.add('xhe-status--warning');
+        statusEl.innerHTML = '<span>No Identity</span>';
+      }
+    });
+  </script>
+</body>
+</html>

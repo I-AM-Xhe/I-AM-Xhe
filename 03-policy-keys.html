@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I·AM·Xhe — Policy Keys</title>
+  <link rel="stylesheet" href="css/core.css">
+</head>
+<body>
+  <div class="scanline-overlay"></div>
+  
+  <button class="mobile-toggle" onclick="XheNav.toggleMobileNav()" data-testid="mobile-nav-toggle">☰</button>
+  
+  <div class="xhe-shell">
+    <aside class="xhe-sidebar">
+      <a href="99-constitution.html" class="xhe-logo" data-testid="logo">I·AM·Xhe</a>
+      <nav class="xhe-nav" id="xhe-nav"></nav>
+    </aside>
+    
+    <main class="xhe-main" data-testid="policy-keys-main">
+      <header class="xhe-page-header">
+        <h1 class="xhe-page-title">03 — Policy Keys</h1>
+        <p class="xhe-page-subtitle">Capability ABI, issuance, revocation</p>
+      </header>
+      
+      <div class="xhe-alert" data-testid="authority-principle">
+        <strong>PRINCIPLE:</strong> Authority is explicit — all power is delegated via revocable policy-keys.
+      </div>
+      
+      <section class="xhe-grid">
+        <div class="xhe-panel" data-testid="key-stats-panel">
+          <h2 class="xhe-panel-title">Key Statistics</h2>
+          <div class="flex flex-col gap-md">
+            <div class="flex justify-between">
+              <span class="text-secondary">Total Keys Issued</span>
+              <span class="text-cyan" id="total-keys">0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">Active Keys</span>
+              <span class="text-green" id="active-keys">0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">Revoked Keys</span>
+              <span class="text-red" id="revoked-keys">0</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="xhe-panel" data-testid="capabilities-panel">
+          <h2 class="xhe-panel-title">Available Capabilities</h2>
+          <ul class="xhe-list">
+            <li class="xhe-list-item">
+              <span>READ</span>
+              <span class="xhe-tag xhe-tag--cyan">BASIC</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>WRITE</span>
+              <span class="xhe-tag xhe-tag--cyan">BASIC</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>DELEGATE</span>
+              <span class="xhe-tag xhe-tag--purple">ELEVATED</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>ADMIN</span>
+              <span class="xhe-tag xhe-tag--red">PRIVILEGED</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>*</span>
+              <span class="xhe-tag xhe-tag--red">WILDCARD</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="issue-key-panel">
+        <h2 class="xhe-panel-title">Issue Policy Key</h2>
+        <p class="text-secondary mb-md">
+          Delegate capabilities to another identity by issuing a policy key.
+        </p>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Holder DID</label>
+          <input type="text" class="xhe-input" id="holder-did" 
+                 data-testid="holder-did-input"
+                 placeholder="did:xhe:...">
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Capabilities (comma-separated)</label>
+          <input type="text" class="xhe-input" id="capabilities" 
+                 data-testid="capabilities-input"
+                 placeholder="READ, WRITE">
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Expiry (optional, hours from now)</label>
+          <input type="number" class="xhe-input" id="expiry-hours" 
+                 data-testid="expiry-hours-input"
+                 placeholder="24" min="0">
+        </div>
+        
+        <button class="xhe-btn xhe-btn--green" onclick="issuePolicyKey()" data-testid="issue-key-btn">
+          Issue Policy Key
+        </button>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="active-keys-panel">
+        <h2 class="xhe-panel-title">Active Policy Keys</h2>
+        <div id="active-keys-list">
+          <p class="text-muted">No active policy keys.</p>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="check-capability-panel">
+        <h2 class="xhe-panel-title">Check Capability</h2>
+        <p class="text-secondary mb-md">
+          Verify if a specific key has a certain capability.
+        </p>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Key ID</label>
+          <input type="text" class="xhe-input" id="check-key-id" 
+                 data-testid="check-key-id-input"
+                 placeholder="Key ID...">
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Capability</label>
+          <select class="xhe-input" id="check-capability" data-testid="check-capability-select" style="background: var(--bg-void);">
+            <option value="READ">READ</option>
+            <option value="WRITE">WRITE</option>
+            <option value="DELEGATE">DELEGATE</option>
+            <option value="ADMIN">ADMIN</option>
+          </select>
+        </div>
+        
+        <button class="xhe-btn" onclick="checkCapability()" data-testid="check-capability-btn">
+          Check Capability
+        </button>
+        
+        <div class="mt-md" id="capability-result" style="display: none;">
+          <div class="xhe-alert" id="capability-result-alert"></div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="capability-abi-panel">
+        <h2 class="xhe-panel-title">Capability ABI</h2>
+        <div class="xhe-code">
+PolicyKey {
+  id: string,       // Unique key identifier
+  holder: string,   // DID of key holder
+  capabilities: [   // Array of capability strings
+    "READ",
+    "WRITE",
+    ...
+  ],
+  expiry: number?,  // Optional expiration timestamp
+  revoked: boolean, // Revocation status
+  issuedAt: number  // Issuance timestamp
+}</div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="console-panel">
+        <h2 class="xhe-panel-title">Policy Console</h2>
+        <div class="xhe-console" id="xhe-console"></div>
+      </section>
+    </main>
+  </div>
+  
+  <script src="js/core.js"></script>
+  <script>
+    async function issuePolicyKey() {
+      const holderDid = document.getElementById('holder-did').value.trim();
+      const capabilitiesStr = document.getElementById('capabilities').value.trim();
+      const expiryHours = parseInt(document.getElementById('expiry-hours').value) || null;
+      
+      if (!holderDid) {
+        XheUtils.log('Holder DID is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      if (!capabilitiesStr) {
+        XheUtils.log('At least one capability is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      const capabilities = capabilitiesStr.split(',').map(c => c.trim().toUpperCase());
+      const expiry = expiryHours ? Date.now() + (expiryHours * 60 * 60 * 1000) : null;
+      
+      try {
+        const key = await xhePolicyKeys.issuePolicyKey(holderDid, capabilities, expiry);
+        
+        XheUtils.log(`Policy key issued: ${XheUtils.formatHash(key.id)}`, 'success', 'xhe-console');
+        XheUtils.log(`Capabilities: ${capabilities.join(', ')}`, 'info', 'xhe-console');
+        
+        refreshKeys();
+        
+        // Clear form
+        document.getElementById('holder-did').value = '';
+        document.getElementById('capabilities').value = '';
+        document.getElementById('expiry-hours').value = '';
+      } catch (error) {
+        XheUtils.log(`Error: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    async function revokePolicyKey(keyId) {
+      try {
+        await xhePolicyKeys.revokePolicyKey(keyId);
+        XheUtils.log(`Policy key revoked: ${XheUtils.formatHash(keyId)}`, 'warn', 'xhe-console');
+        refreshKeys();
+      } catch (error) {
+        XheUtils.log(`Error: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    async function checkCapability() {
+      const keyId = document.getElementById('check-key-id').value.trim();
+      const capability = document.getElementById('check-capability').value;
+      
+      if (!keyId) {
+        XheUtils.log('Key ID is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      const hasCapability = await xhePolicyKeys.checkCapability(keyId, capability);
+      
+      const resultDiv = document.getElementById('capability-result');
+      const alertDiv = document.getElementById('capability-result-alert');
+      
+      resultDiv.style.display = 'block';
+      
+      if (hasCapability) {
+        alertDiv.className = 'xhe-alert xhe-alert--success';
+        alertDiv.innerHTML = `<strong>GRANTED:</strong> Key has ${capability} capability`;
+      } else {
+        alertDiv.className = 'xhe-alert xhe-alert--error';
+        alertDiv.innerHTML = `<strong>DENIED:</strong> Key does not have ${capability} capability`;
+      }
+      
+      XheUtils.log(`Capability check: ${capability} = ${hasCapability}`, hasCapability ? 'success' : 'warn', 'xhe-console');
+    }
+    
+    async function refreshKeys() {
+      const allKeys = await xhePolicyKeys.getAllKeys();
+      const activeKeys = allKeys.filter(k => !k.revoked);
+      const revokedKeys = allKeys.filter(k => k.revoked);
+      
+      document.getElementById('total-keys').textContent = allKeys.length;
+      document.getElementById('active-keys').textContent = activeKeys.length;
+      document.getElementById('revoked-keys').textContent = revokedKeys.length;
+      
+      const container = document.getElementById('active-keys-list');
+      
+      if (activeKeys.length === 0) {
+        container.innerHTML = '<p class="text-muted">No active policy keys.</p>';
+        return;
+      }
+      
+      container.innerHTML = `
+        <table class="xhe-table">
+          <thead>
+            <tr>
+              <th>Key ID</th>
+              <th>Holder</th>
+              <th>Capabilities</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${activeKeys.map(key => `
+              <tr data-testid="key-row-${key.id.slice(0, 8)}">
+                <td><span class="text-cyan">${XheUtils.formatHash(key.id, 6)}</span></td>
+                <td><span class="text-secondary">${XheUtils.formatHash(key.holder, 6)}</span></td>
+                <td>${key.capabilities.map(c => `<span class="xhe-tag">${c}</span>`).join(' ')}</td>
+                <td>
+                  <button class="xhe-btn xhe-btn--red" onclick="revokePolicyKey('${key.id}')" 
+                          data-testid="revoke-${key.id.slice(0, 8)}">
+                    Revoke
+                  </button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initXhe();
+      await refreshKeys();
+      XheUtils.log('Policy Keys module initialized', 'info', 'xhe-console');
+    });
+  </script>
+</body>
+</html>

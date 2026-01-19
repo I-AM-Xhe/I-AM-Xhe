@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I·AM·Xhe — Verification Explorer</title>
+  <link rel="stylesheet" href="css/core.css">
+</head>
+<body>
+  <div class="scanline-overlay"></div>
+  
+  <button class="mobile-toggle" onclick="XheNav.toggleMobileNav()" data-testid="mobile-nav-toggle">☰</button>
+  
+  <div class="xhe-shell">
+    <aside class="xhe-sidebar">
+      <a href="99-constitution.html" class="xhe-logo" data-testid="logo">I·AM·Xhe</a>
+      <nav class="xhe-nav" id="xhe-nav"></nav>
+    </aside>
+    
+    <main class="xhe-main" data-testid="explorer-main">
+      <header class="xhe-page-header">
+        <h1 class="xhe-page-title">11 — Verification Explorer</h1>
+        <p class="xhe-page-subtitle">Replay, audit, provenance explorer</p>
+      </header>
+      
+      <div class="xhe-alert" data-testid="explorer-info">
+        <strong>PRINCIPLE:</strong> History is eternal — append-only, hash-linked, replayable forever.
+        Every action in the system can be verified and audited.
+      </div>
+      
+      <section class="xhe-grid">
+        <div class="xhe-panel" data-testid="ledger-stats-panel">
+          <h2 class="xhe-panel-title">Ledger Statistics</h2>
+          <div class="flex flex-col gap-md">
+            <div class="flex justify-between">
+              <span class="text-secondary">Total Pulsars</span>
+              <span class="text-cyan" id="total-pulsars">0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">Chain Integrity</span>
+              <span class="xhe-status xhe-status--active" id="chain-integrity">Verified</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">Latest Hash</span>
+              <span class="text-green" id="latest-hash" style="font-size: 0.75rem;">—</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="xhe-panel" data-testid="pulsar-types-panel">
+          <h2 class="xhe-panel-title">Pulsar Types</h2>
+          <div id="pulsar-type-breakdown" class="flex flex-col gap-sm">
+            <p class="text-muted">Loading...</p>
+          </div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="verification-panel">
+        <h2 class="xhe-panel-title">Chain Verification</h2>
+        <p class="text-secondary mb-md">
+          Verify the integrity of the entire pulsar chain by replaying and validating each hash.
+        </p>
+        
+        <div class="flex gap-md mb-md">
+          <button class="xhe-btn xhe-btn--green" onclick="verifyChain()" data-testid="verify-chain-btn" id="verify-btn">
+            Verify Full Chain
+          </button>
+          <button class="xhe-btn" onclick="verifyLatest()" data-testid="verify-latest-btn">
+            Verify Latest 10
+          </button>
+        </div>
+        
+        <div class="xhe-progress mb-md" id="verification-progress" style="display: none;">
+          <div class="xhe-progress-bar" id="progress-bar" style="width: 0%;"></div>
+        </div>
+        
+        <div id="verification-result" style="display: none;">
+          <div class="xhe-alert" id="verification-alert"></div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="search-panel">
+        <h2 class="xhe-panel-title">Search Ledger</h2>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Search By</label>
+          <select class="xhe-input" id="search-type" data-testid="search-type-select" style="background: var(--bg-void);">
+            <option value="hash">Hash</option>
+            <option value="index">Pulse Index</option>
+            <option value="type">Type</option>
+            <option value="content">Content</option>
+          </select>
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Search Query</label>
+          <input type="text" class="xhe-input" id="search-query" data-testid="search-query-input"
+                 placeholder="Enter search term...">
+        </div>
+        
+        <button class="xhe-btn" onclick="searchLedger()" data-testid="search-btn">
+          Search
+        </button>
+        
+        <div class="mt-lg" id="search-results" style="display: none;">
+          <label class="xhe-label">Search Results</label>
+          <div id="results-container" class="flex flex-col gap-sm"></div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="pulsar-viewer-panel">
+        <h2 class="xhe-panel-title">Pulsar Viewer</h2>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Pulse Index or Hash</label>
+          <input type="text" class="xhe-input" id="pulsar-lookup" data-testid="pulsar-lookup-input"
+                 placeholder="Enter index (e.g., 5) or hash...">
+        </div>
+        
+        <button class="xhe-btn" onclick="lookupPulsar()" data-testid="lookup-btn">
+          Lookup
+        </button>
+        
+        <div class="mt-lg" id="pulsar-detail" style="display: none;">
+          <div class="xhe-code" id="pulsar-json" style="max-height: 400px; overflow-y: auto;"></div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="full-ledger-panel">
+        <div class="flex justify-between items-center mb-md">
+          <h2 class="xhe-panel-title" style="margin: 0;">Full Ledger View</h2>
+          <div class="flex gap-sm">
+            <button class="xhe-btn" onclick="exportLedger()" data-testid="export-ledger-btn">
+              Export
+            </button>
+            <button class="xhe-btn" onclick="refreshLedger()" data-testid="refresh-ledger-btn">
+              Refresh
+            </button>
+          </div>
+        </div>
+        
+        <div class="flex gap-md mb-md">
+          <label class="text-secondary flex items-center gap-sm">
+            <input type="checkbox" id="show-payload" checked> Show Payload
+          </label>
+          <select class="xhe-input" id="filter-type" style="background: var(--bg-void); width: auto;">
+            <option value="">All Types</option>
+            <option value="SYSTEM">SYSTEM</option>
+            <option value="IDENTITY">IDENTITY</option>
+            <option value="POLICY">POLICY</option>
+            <option value="SOCIAL">SOCIAL</option>
+            <option value="KARMA">KARMA</option>
+            <option value="GOVERNANCE">GOVERNANCE</option>
+          </select>
+        </div>
+        
+        <div id="ledger-table" style="max-height: 500px; overflow-y: auto;">
+          <table class="xhe-table">
+            <thead>
+              <tr>
+                <th>Index</th>
+                <th>Type</th>
+                <th>Hash</th>
+                <th>Parent</th>
+              </tr>
+            </thead>
+            <tbody id="ledger-body">
+              <tr>
+                <td colspan="4" class="text-muted">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="replay-panel">
+        <h2 class="xhe-panel-title">Replay Simulation</h2>
+        <p class="text-secondary mb-md">
+          Replay the ledger from any point to verify deterministic execution.
+        </p>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Start From Index</label>
+          <input type="number" class="xhe-input" id="replay-from" data-testid="replay-from-input"
+                 value="0" min="0">
+        </div>
+        
+        <button class="xhe-btn xhe-btn--purple" onclick="replayLedger()" data-testid="replay-btn">
+          Start Replay
+        </button>
+        
+        <div class="mt-lg" id="replay-output" style="display: none;">
+          <label class="xhe-label">Replay Output</label>
+          <div class="xhe-console" id="replay-console" style="max-height: 300px;"></div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="console-panel">
+        <h2 class="xhe-panel-title">Explorer Console</h2>
+        <div class="xhe-console" id="xhe-console"></div>
+      </section>
+    </main>
+  </div>
+  
+  <script src="js/core.js"></script>
+  <script>
+    async function loadStats() {
+      const pulsars = await xheKernel.getAllPulsars();
+      
+      document.getElementById('total-pulsars').textContent = pulsars.length;
+      
+      if (pulsars.length > 0) {
+        const latest = pulsars[pulsars.length - 1];
+        document.getElementById('latest-hash').textContent = XheUtils.formatHash(latest.hash, 8);
+      }
+      
+      // Type breakdown
+      const typeCounts = {};
+      pulsars.forEach(p => {
+        const baseType = p.type.split('_')[0];
+        typeCounts[baseType] = (typeCounts[baseType] || 0) + 1;
+      });
+      
+      const breakdownContainer = document.getElementById('pulsar-type-breakdown');
+      if (Object.keys(typeCounts).length === 0) {
+        breakdownContainer.innerHTML = '<p class="text-muted">No pulsars recorded yet.</p>';
+      } else {
+        breakdownContainer.innerHTML = Object.entries(typeCounts)
+          .sort((a, b) => b[1] - a[1])
+          .map(([type, count]) => `
+            <div class="flex justify-between">
+              <span class="xhe-tag">${type}</span>
+              <span class="text-cyan">${count}</span>
+            </div>
+          `).join('');
+      }
+    }
+    
+    async function verifyChain() {
+      const btn = document.getElementById('verify-btn');
+      const progressContainer = document.getElementById('verification-progress');
+      const progressBar = document.getElementById('progress-bar');
+      const resultContainer = document.getElementById('verification-result');
+      const alertDiv = document.getElementById('verification-alert');
+      
+      btn.disabled = true;
+      btn.innerHTML = '<span class="xhe-loading"></span> Verifying...';
+      progressContainer.style.display = 'block';
+      resultContainer.style.display = 'none';
+      
+      XheUtils.log('Starting full chain verification...', 'info', 'xhe-console');
+      
+      const results = await xheKernel.replayPulsars(0);
+      const total = results.length;
+      let valid = 0;
+      let invalid = 0;
+      
+      for (let i = 0; i < results.length; i++) {
+        progressBar.style.width = `${((i + 1) / total) * 100}%`;
+        
+        if (results[i].valid) {
+          valid++;
+        } else {
+          invalid++;
+          XheUtils.log(`Invalid pulsar at index ${results[i].index}`, 'error', 'xhe-console');
+        }
+        
+        // Small delay for visual effect
+        if (i % 10 === 0) {
+          await new Promise(r => setTimeout(r, 10));
+        }
+      }
+      
+      btn.disabled = false;
+      btn.innerHTML = 'Verify Full Chain';
+      resultContainer.style.display = 'block';
+      
+      if (invalid === 0) {
+        alertDiv.className = 'xhe-alert xhe-alert--success';
+        alertDiv.innerHTML = `<strong>VERIFIED:</strong> All ${valid} pulsars are valid. Chain integrity confirmed.`;
+        document.getElementById('chain-integrity').className = 'xhe-status xhe-status--active';
+        document.getElementById('chain-integrity').textContent = 'Verified';
+        XheUtils.log(`Chain verification complete: ${valid}/${total} valid`, 'success', 'xhe-console');
+      } else {
+        alertDiv.className = 'xhe-alert xhe-alert--error';
+        alertDiv.innerHTML = `<strong>FAILED:</strong> ${invalid} invalid pulsars detected. Chain may be corrupted.`;
+        document.getElementById('chain-integrity').className = 'xhe-status xhe-status--error';
+        document.getElementById('chain-integrity').textContent = 'Invalid';
+        XheUtils.log(`Chain verification failed: ${invalid} invalid pulsars`, 'error', 'xhe-console');
+      }
+    }
+    
+    async function verifyLatest() {
+      const results = await xheKernel.replayPulsars(0);
+      const latest = results.slice(-10);
+      
+      const allValid = latest.every(r => r.valid);
+      
+      if (allValid) {
+        XheUtils.log(`Latest ${latest.length} pulsars verified successfully`, 'success', 'xhe-console');
+      } else {
+        XheUtils.log('Some recent pulsars failed verification!', 'error', 'xhe-console');
+      }
+    }
+    
+    async function searchLedger() {
+      const searchType = document.getElementById('search-type').value;
+      const query = document.getElementById('search-query').value.trim().toLowerCase();
+      
+      if (!query) {
+        XheUtils.log('Search query is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      const pulsars = await xheKernel.getAllPulsars();
+      let results = [];
+      
+      switch (searchType) {
+        case 'hash':
+          results = pulsars.filter(p => p.hash.toLowerCase().includes(query));
+          break;
+        case 'index':
+          const index = parseInt(query);
+          results = pulsars.filter(p => p.index === index);
+          break;
+        case 'type':
+          results = pulsars.filter(p => p.type.toLowerCase().includes(query));
+          break;
+        case 'content':
+          results = pulsars.filter(p => 
+            JSON.stringify(p.payload).toLowerCase().includes(query)
+          );
+          break;
+      }
+      
+      const container = document.getElementById('results-container');
+      const resultsDiv = document.getElementById('search-results');
+      resultsDiv.style.display = 'block';
+      
+      if (results.length === 0) {
+        container.innerHTML = '<p class="text-muted">No results found.</p>';
+        XheUtils.log('No results found', 'warn', 'xhe-console');
+        return;
+      }
+      
+      container.innerHTML = results.slice(0, 20).map(p => `
+        <div class="xhe-pulsar" onclick="showPulsarDetail('${p.hash}')" style="cursor: pointer;">
+          <span class="xhe-pulsar-index">${XheUtils.formatPulseIndex(p.index)}</span>
+          <span class="xhe-pulsar-type">${p.type}</span>
+          <span class="xhe-pulsar-hash">${XheUtils.formatHash(p.hash)}</span>
+        </div>
+      `).join('');
+      
+      XheUtils.log(`Found ${results.length} results`, 'success', 'xhe-console');
+    }
+    
+    async function lookupPulsar() {
+      const input = document.getElementById('pulsar-lookup').value.trim();
+      
+      if (!input) {
+        XheUtils.log('Index or hash is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      const pulsars = await xheKernel.getAllPulsars();
+      let pulsar;
+      
+      if (/^\d+$/.test(input)) {
+        pulsar = pulsars.find(p => p.index === parseInt(input));
+      } else {
+        pulsar = pulsars.find(p => p.hash === input || p.hash.startsWith(input));
+      }
+      
+      const detailDiv = document.getElementById('pulsar-detail');
+      const jsonDiv = document.getElementById('pulsar-json');
+      
+      detailDiv.style.display = 'block';
+      
+      if (pulsar) {
+        jsonDiv.textContent = JSON.stringify(pulsar, null, 2);
+        XheUtils.log(`Pulsar found: ${XheUtils.formatPulseIndex(pulsar.index)}`, 'success', 'xhe-console');
+      } else {
+        jsonDiv.innerHTML = '<span class="text-red">Pulsar not found</span>';
+        XheUtils.log('Pulsar not found', 'warn', 'xhe-console');
+      }
+    }
+    
+    async function showPulsarDetail(hash) {
+      document.getElementById('pulsar-lookup').value = hash;
+      await lookupPulsar();
+    }
+    
+    async function refreshLedger() {
+      const pulsars = await xheKernel.getAllPulsars();
+      const showPayload = document.getElementById('show-payload').checked;
+      const filterType = document.getElementById('filter-type').value;
+      
+      let filtered = pulsars;
+      if (filterType) {
+        filtered = pulsars.filter(p => p.type.startsWith(filterType));
+      }
+      
+      const tbody = document.getElementById('ledger-body');
+      
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-muted">No pulsars found.</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = filtered.reverse().slice(0, 100).map(p => `
+        <tr onclick="showPulsarDetail('${p.hash}')" style="cursor: pointer;" data-testid="ledger-row-${p.index}">
+          <td><span class="text-cyan">${XheUtils.formatPulseIndex(p.index)}</span></td>
+          <td><span class="xhe-tag">${p.type}</span></td>
+          <td><span class="text-green">${XheUtils.formatHash(p.hash, 8)}</span></td>
+          <td><span class="text-muted">${p.parentHash ? XheUtils.formatHash(p.parentHash, 6) : '—'}</span></td>
+        </tr>
+      `).join('');
+      
+      await loadStats();
+    }
+    
+    async function exportLedger() {
+      const pulsars = await xheKernel.getAllPulsars();
+      const json = JSON.stringify(pulsars, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `xhe-ledger-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      XheUtils.log('Ledger exported', 'success', 'xhe-console');
+    }
+    
+    async function replayLedger() {
+      const fromIndex = parseInt(document.getElementById('replay-from').value) || 0;
+      const outputDiv = document.getElementById('replay-output');
+      const consoleDiv = document.getElementById('replay-console');
+      
+      outputDiv.style.display = 'block';
+      consoleDiv.innerHTML = '';
+      
+      const log = (msg, type) => {
+        const line = document.createElement('div');
+        line.className = 'xhe-console-line';
+        line.innerHTML = `<span class="xhe-console-${type}">${msg}</span>`;
+        consoleDiv.appendChild(line);
+        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+      };
+      
+      log(`Starting replay from index ${fromIndex}...`, 'info');
+      
+      const results = await xheKernel.replayPulsars(fromIndex);
+      
+      for (const result of results) {
+        const status = result.valid ? '✓' : '✗';
+        const type = result.valid ? 'success' : 'error';
+        log(`${XheUtils.formatPulseIndex(result.index)} [${result.type}] ${status}`, type);
+        
+        await new Promise(r => setTimeout(r, 50));
+      }
+      
+      const validCount = results.filter(r => r.valid).length;
+      log(`Replay complete: ${validCount}/${results.length} valid`, validCount === results.length ? 'success' : 'warn');
+      
+      XheUtils.log(`Replay completed from index ${fromIndex}`, 'success', 'xhe-console');
+    }
+    
+    // Event listeners for filters
+    document.getElementById('show-payload')?.addEventListener('change', refreshLedger);
+    document.getElementById('filter-type')?.addEventListener('change', refreshLedger);
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initXhe();
+      await loadStats();
+      await refreshLedger();
+      XheUtils.log('Verification Explorer initialized', 'info', 'xhe-console');
+    });
+  </script>
+</body>
+</html>

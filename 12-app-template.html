@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I·AM·Xhe — App Template</title>
+  <link rel="stylesheet" href="css/core.css">
+</head>
+<body>
+  <div class="scanline-overlay"></div>
+  
+  <button class="mobile-toggle" onclick="XheNav.toggleMobileNav()" data-testid="mobile-nav-toggle">☰</button>
+  
+  <div class="xhe-shell">
+    <aside class="xhe-sidebar">
+      <a href="99-constitution.html" class="xhe-logo" data-testid="logo">I·AM·Xhe</a>
+      <nav class="xhe-nav" id="xhe-nav"></nav>
+      
+      <div class="mt-lg" style="margin-top: auto; border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+        <span class="xhe-tag xhe-tag--green">TEMPLATE</span>
+      </div>
+    </aside>
+    
+    <main class="xhe-main" data-testid="template-main">
+      <header class="xhe-page-header">
+        <h1 class="xhe-page-title">App Starter Template</h1>
+        <p class="xhe-page-subtitle">Copy, modify, and deploy your sovereign app</p>
+      </header>
+      
+      <div class="xhe-alert xhe-alert--success" data-testid="template-info">
+        <strong>QUICK START:</strong> This template shows you how to build apps on I·AM·Xhe.
+        Copy this HTML file and start building in minutes.
+      </div>
+      
+      <section class="xhe-grid">
+        <div class="xhe-panel" data-testid="template-status-panel">
+          <h2 class="xhe-panel-title">Template Status</h2>
+          <div class="flex flex-col gap-md">
+            <div class="flex justify-between">
+              <span class="text-secondary">Identity</span>
+              <span class="xhe-status" id="identity-status">Checking...</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">Kernel</span>
+              <span class="xhe-status" id="kernel-status">Checking...</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">API Access</span>
+              <span class="xhe-status" id="api-status">Checking...</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="xhe-panel" data-testid="app-sandbox-panel">
+          <h2 class="xhe-panel-title">App Sandbox</h2>
+          <p class="text-secondary mb-md">
+            Your app runs in an isolated sandbox with explicit capabilities.
+          </p>
+          <ul class="xhe-list">
+            <li class="xhe-list-item">
+              <span>Network Access</span>
+              <span class="xhe-tag xhe-tag--red">BLOCKED</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Kernel Mutation</span>
+              <span class="xhe-tag xhe-tag--red">BLOCKED</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>API via Policy Key</span>
+              <span class="xhe-tag xhe-tag--green">ALLOWED</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="example-app-panel">
+        <h2 class="xhe-panel-title">Example App: Note Taker</h2>
+        <p class="text-secondary mb-md">
+          A simple note-taking app demonstrating core API usage.
+        </p>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">New Note</label>
+          <textarea class="xhe-textarea" id="note-content" data-testid="note-input"
+                    placeholder="Write your note here..."></textarea>
+        </div>
+        
+        <button class="xhe-btn xhe-btn--green" onclick="saveNote()" data-testid="save-note-btn">
+          Save Note to Ledger
+        </button>
+        
+        <div class="mt-lg">
+          <h3 class="xhe-panel-title">Saved Notes</h3>
+          <div id="notes-list" class="flex flex-col gap-sm">
+            <p class="text-muted">No notes yet.</p>
+          </div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="code-walkthrough-panel">
+        <h2 class="xhe-panel-title">Code Walkthrough</h2>
+        
+        <div class="mb-lg">
+          <h3 class="text-cyan mb-sm">1. Initialize Connection</h3>
+          <div class="xhe-code">
+// Wait for I·AM·Xhe to initialize
+document.addEventListener('DOMContentLoaded', async () => {
+  await initXhe();
+  
+  // Check if user has identity
+  const did = await XheDevAPI.getDID();
+  if (!did) {
+    console.log('User needs to create identity first');
+  }
+});</div>
+        </div>
+        
+        <div class="mb-lg">
+          <h3 class="text-cyan mb-sm">2. Submit Data to Ledger</h3>
+          <div class="xhe-code">
+// Save data using Pulse API
+async function saveData(data) {
+  const pulsar = await xheKernel.createPulsar('APP_DATA', {
+    appName: 'my-app',
+    data: data,
+    timestamp: Date.now()
+  });
+  
+  console.log('Saved:', pulsar.hash);
+  return pulsar;
+}</div>
+        </div>
+        
+        <div class="mb-lg">
+          <h3 class="text-cyan mb-sm">3. Query Ledger</h3>
+          <div class="xhe-code">
+// Retrieve data from ledger
+async function queryData(appName) {
+  const pulsars = await xheKernel.getAllPulsars();
+  
+  return pulsars.filter(p => 
+    p.type === 'APP_DATA' && 
+    p.payload.appName === appName
+  );
+}</div>
+        </div>
+        
+        <div class="mb-lg">
+          <h3 class="text-cyan mb-sm">4. Use Developer API</h3>
+          <div class="xhe-code">
+// Full API example with policy key
+async function secureOperation() {
+  // Register app (one-time)
+  const app = await XheDevAPI.registerApp({
+    name: 'my-app',
+    description: 'My sovereign app',
+    capabilities: ['READ', 'WRITE']
+  });
+  
+  // Use policy key for operations
+  await XheDevAPI.submitPulse({
+    appDid: app.did,
+    policyKey: app.policyKeyId,
+    operations: [
+      { type: 'APP_EVENT', payload: { action: 'test' } }
+    ]
+  });
+}</div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="download-template-panel">
+        <h2 class="xhe-panel-title">Download Template</h2>
+        <p class="text-secondary mb-md">
+          Get the starter template to begin building your own app.
+        </p>
+        
+        <div class="flex gap-md">
+          <button class="xhe-btn xhe-btn--green" onclick="downloadTemplate()" data-testid="download-btn">
+            Download HTML Template
+          </button>
+          <button class="xhe-btn" onclick="viewTemplateSource()" data-testid="view-source-btn">
+            View Source
+          </button>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="onboarding-checklist-panel">
+        <h2 class="xhe-panel-title">Developer Onboarding Checklist</h2>
+        <ul class="xhe-list">
+          <li class="xhe-list-item">
+            <span>1. Create Identity</span>
+            <a href="02-identity.html" class="xhe-btn" style="padding: 4px 8px; font-size: 0.75rem;">Go</a>
+          </li>
+          <li class="xhe-list-item">
+            <span>2. Register App</span>
+            <a href="12-developer-portal.html" class="xhe-btn" style="padding: 4px 8px; font-size: 0.75rem;">Go</a>
+          </li>
+          <li class="xhe-list-item">
+            <span>3. Get Policy Key</span>
+            <a href="03-policy-keys.html" class="xhe-btn" style="padding: 4px 8px; font-size: 0.75rem;">Go</a>
+          </li>
+          <li class="xhe-list-item">
+            <span>4. Submit First Pulse</span>
+            <a href="00-kernel.html" class="xhe-btn" style="padding: 4px 8px; font-size: 0.75rem;">Go</a>
+          </li>
+          <li class="xhe-list-item">
+            <span>5. Verify in Explorer</span>
+            <a href="11-verification-explorer.html" class="xhe-btn" style="padding: 4px 8px; font-size: 0.75rem;">Go</a>
+          </li>
+        </ul>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="console-panel">
+        <h2 class="xhe-panel-title">App Console</h2>
+        <div class="xhe-console" id="xhe-console"></div>
+      </section>
+      
+      <!-- Source Modal -->
+      <div class="xhe-modal-overlay" id="source-modal" data-testid="source-modal">
+        <div class="xhe-modal" style="max-width: 800px;">
+          <div class="xhe-modal-header">
+            <h3 class="xhe-modal-title">Template Source</h3>
+            <button class="xhe-modal-close" onclick="closeSourceModal()">&times;</button>
+          </div>
+          <div class="xhe-modal-body">
+            <div class="xhe-code" id="source-code" style="max-height: 400px; overflow-y: auto;"></div>
+          </div>
+          <div class="xhe-modal-footer">
+            <button class="xhe-btn" onclick="closeSourceModal()">Close</button>
+            <button class="xhe-btn xhe-btn--green" onclick="copySource()">Copy Source</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script src="js/core.js"></script>
+  <script src="js/developer-api.js"></script>
+  <script>
+    const APP_NAME = 'note-taker-demo';
+    
+    async function checkStatus() {
+      // Identity status
+      const identityStatus = document.getElementById('identity-status');
+      const did = await XheDevAPI.getDID();
+      if (did) {
+        identityStatus.textContent = 'Connected';
+        identityStatus.className = 'xhe-status xhe-status--active';
+      } else {
+        identityStatus.textContent = 'Not Found';
+        identityStatus.className = 'xhe-status xhe-status--warning';
+      }
+      
+      // Kernel status
+      const kernelStatus = document.getElementById('kernel-status');
+      kernelStatus.textContent = 'Running';
+      kernelStatus.className = 'xhe-status xhe-status--active';
+      
+      // API status
+      const apiStatus = document.getElementById('api-status');
+      apiStatus.textContent = 'Available';
+      apiStatus.className = 'xhe-status xhe-status--active';
+    }
+    
+    async function saveNote() {
+      const content = document.getElementById('note-content').value.trim();
+      
+      if (!content) {
+        XheUtils.log('Note content is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      const did = await XheDevAPI.getDID();
+      if (!did) {
+        XheUtils.log('Create an identity first', 'error', 'xhe-console');
+        return;
+      }
+      
+      try {
+        // Save note as a pulsar
+        const pulsar = await xheKernel.createPulsar('APP_NOTE', {
+          appName: APP_NAME,
+          content: content,
+          author: did
+        });
+        
+        XheUtils.log(`Note saved: ${XheUtils.formatHash(pulsar.hash)}`, 'success', 'xhe-console');
+        
+        document.getElementById('note-content').value = '';
+        await loadNotes();
+        
+      } catch (error) {
+        XheUtils.log(`Error: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    async function loadNotes() {
+      try {
+        if (!xheKernel) {
+          console.log('Kernel not ready yet');
+          return;
+        }
+        const pulsars = await xheKernel.getAllPulsars();
+        const notes = pulsars.filter(p => 
+          p.type === 'APP_NOTE' && 
+          p.payload && p.payload.appName === APP_NAME
+        );
+        
+        const container = document.getElementById('notes-list');
+        
+        if (notes.length === 0) {
+          container.innerHTML = '<p class="text-muted">No notes yet.</p>';
+          return;
+        }
+        
+        container.innerHTML = notes.reverse().map((note, i) => `
+          <div class="xhe-pulsar" data-testid="note-${i}">
+            <span class="text-secondary" style="flex: 1;">${note.payload.content.slice(0, 50)}${note.payload.content.length > 50 ? '...' : ''}</span>
+            <span class="text-muted" style="font-size: 0.75rem;">P#${note.index}</span>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Error loading notes:', error);
+      }
+    }
+    
+    function downloadTemplate() {
+      const template = generateTemplate();
+      const blob = new Blob([template], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'my-xhe-app.html';
+      a.click();
+      URL.revokeObjectURL(url);
+      XheUtils.log('Template downloaded', 'success', 'xhe-console');
+    }
+    
+    function viewTemplateSource() {
+      document.getElementById('source-code').textContent = generateTemplate();
+      document.getElementById('source-modal').classList.add('active');
+    }
+    
+    function closeSourceModal() {
+      document.getElementById('source-modal').classList.remove('active');
+    }
+    
+    function copySource() {
+      const source = generateTemplate();
+      navigator.clipboard.writeText(source);
+      XheUtils.log('Source copied to clipboard', 'success', 'xhe-console');
+    }
+    
+    function generateTemplate() {
+      return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My I·AM·Xhe App</title>
+  <!-- Include I·AM·Xhe styles -->
+  <link rel="stylesheet" href="css/core.css">
+</head>
+<body>
+  <div class="scanline-overlay"></div>
+  
+  <div class="xhe-shell">
+    <aside class="xhe-sidebar">
+      <a href="99-constitution.html" class="xhe-logo">I·AM·Xhe</a>
+      <nav class="xhe-nav" id="xhe-nav"></nav>
+    </aside>
+    
+    <main class="xhe-main">
+      <header class="xhe-page-header">
+        <h1 class="xhe-page-title">My App</h1>
+        <p class="xhe-page-subtitle">Built on I·AM·Xhe</p>
+      </header>
+      
+      <!-- Your app content here -->
+      <section class="xhe-panel">
+        <h2 class="xhe-panel-title">Hello Sovereign World</h2>
+        <p class="text-secondary mb-md">
+          This is your app running on I·AM·Xhe infrastructure.
+        </p>
+        
+        <button class="xhe-btn xhe-btn--green" onclick="myAction()">
+          Do Something
+        </button>
+        
+        <div class="xhe-console mt-lg" id="xhe-console"></div>
+      </section>
+    </main>
+  </div>
+  
+  <!-- Include I·AM·Xhe core -->
+  <script src="js/core.js"><\/script>
+  <script src="js/developer-api.js"><\/script>
+  
+  <script>
+    // Your app code here
+    async function myAction() {
+      // Check identity
+      const did = await XheDevAPI.getDID();
+      if (!did) {
+        XheUtils.log('Create identity first', 'warn', 'xhe-console');
+        return;
+      }
+      
+      // Create a pulsar
+      const pulsar = await xheKernel.createPulsar('MY_APP_EVENT', {
+        appName: 'my-app',
+        action: 'test',
+        author: did
+      });
+      
+      XheUtils.log('Action recorded: ' + pulsar.hash.slice(0, 16), 'success', 'xhe-console');
+    }
+    
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initXhe();
+      XheUtils.log('My App initialized', 'info', 'xhe-console');
+    });
+  <\/script>
+</body>
+</html>`;
+    }
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        await initXhe();
+        // Wait a bit for IndexedDB to fully initialize
+        await new Promise(r => setTimeout(r, 500));
+        await checkStatus();
+        await loadNotes();
+        XheUtils.log('App Template loaded', 'info', 'xhe-console');
+        XheUtils.log('Ready to build sovereign apps!', 'success', 'xhe-console');
+      } catch (error) {
+        console.error('Initialization error:', error);
+        XheUtils.log('Initialization error: ' + error.message, 'error', 'xhe-console');
+      }
+    });
+  </script>
+</body>
+</html>

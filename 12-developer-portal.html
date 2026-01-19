@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I·AM·Xhe — Developer Portal</title>
+  <link rel="stylesheet" href="css/core.css">
+</head>
+<body>
+  <div class="scanline-overlay"></div>
+  
+  <button class="mobile-toggle" onclick="XheNav.toggleMobileNav()" data-testid="mobile-nav-toggle">☰</button>
+  
+  <div class="xhe-shell">
+    <aside class="xhe-sidebar">
+      <a href="99-constitution.html" class="xhe-logo" data-testid="logo">I·AM·Xhe</a>
+      <nav class="xhe-nav" id="xhe-nav"></nav>
+      
+      <div class="mt-lg" style="margin-top: auto; border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+        <span class="xhe-tag xhe-tag--purple">DEVELOPER</span>
+      </div>
+    </aside>
+    
+    <main class="xhe-main" data-testid="developer-main">
+      <header class="xhe-page-header">
+        <h1 class="xhe-page-title">Developer Portal</h1>
+        <p class="xhe-page-subtitle">Build sovereign apps on I·AM·Xhe infrastructure</p>
+      </header>
+      
+      <div class="xhe-alert xhe-alert--success" data-testid="dev-info">
+        <strong>PLUG-IN ARCHITECTURE:</strong> Install an app in 3 clicks — no build tools, no dependencies.
+        Every app operates under explicit policy-key authority.
+      </div>
+      
+      <section class="xhe-grid">
+        <div class="xhe-panel" data-testid="dev-stats-panel">
+          <h2 class="xhe-panel-title">Registry Stats</h2>
+          <div class="flex flex-col gap-md">
+            <div class="flex justify-between">
+              <span class="text-secondary">Registered Apps</span>
+              <span class="text-cyan" id="registered-apps">0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">Active Policy Keys</span>
+              <span class="text-green" id="active-policy-keys">0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">Total API Calls</span>
+              <span class="text-purple" id="total-api-calls">0</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="xhe-panel" data-testid="quick-actions-panel">
+          <h2 class="xhe-panel-title">Quick Actions</h2>
+          <div class="flex flex-col gap-sm">
+            <button class="xhe-btn w-full" onclick="showRegisterApp()" data-testid="register-app-btn">
+              Register New App
+            </button>
+            <button class="xhe-btn xhe-btn--green w-full" onclick="showApiPlayground()" data-testid="api-playground-btn">
+              API Playground
+            </button>
+            <a href="12-app-template.html" class="xhe-btn xhe-btn--purple w-full" data-testid="get-template-btn">
+              Get Starter Template
+            </a>
+          </div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="register-app-panel" id="register-app-section" style="display: none;">
+        <h2 class="xhe-panel-title">Register Application</h2>
+        <p class="text-secondary mb-md">
+          Register your app to receive a unique DID and mint scoped policy keys.
+        </p>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">App Name</label>
+          <input type="text" class="xhe-input" id="app-name" data-testid="app-name-input"
+                 placeholder="my-sovereign-app">
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">App Description</label>
+          <textarea class="xhe-textarea" id="app-description" data-testid="app-description-input"
+                    placeholder="Describe what your app does..."></textarea>
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Requested Capabilities</label>
+          <div class="flex flex-col gap-sm">
+            <label class="flex items-center gap-sm">
+              <input type="checkbox" id="cap-read" checked> READ — Read ledger data
+            </label>
+            <label class="flex items-center gap-sm">
+              <input type="checkbox" id="cap-write"> WRITE — Submit pulsars
+            </label>
+            <label class="flex items-center gap-sm">
+              <input type="checkbox" id="cap-social"> SOCIAL_POST — Create social posts
+            </label>
+            <label class="flex items-center gap-sm">
+              <input type="checkbox" id="cap-karma"> KARMA_GRANT — Grant karma rewards
+            </label>
+            <label class="flex items-center gap-sm">
+              <input type="checkbox" id="cap-storage"> STORAGE — Access IPFS storage
+            </label>
+          </div>
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">App Homepage URL (optional)</label>
+          <input type="text" class="xhe-input" id="app-url" data-testid="app-url-input"
+                 placeholder="https://...">
+        </div>
+        
+        <div class="flex gap-md">
+          <button class="xhe-btn xhe-btn--green" onclick="registerApp()" data-testid="submit-register-btn">
+            Register App
+          </button>
+          <button class="xhe-btn" onclick="hideRegisterApp()" data-testid="cancel-register-btn">
+            Cancel
+          </button>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="registered-apps-panel">
+        <h2 class="xhe-panel-title">Registered Applications</h2>
+        <div id="apps-list">
+          <p class="text-muted">No apps registered yet.</p>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="api-playground-panel" id="api-playground-section" style="display: none;">
+        <h2 class="xhe-panel-title">API Playground</h2>
+        <p class="text-secondary mb-md">
+          Test the Developer APIs directly. All calls are sandboxed and audited.
+        </p>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Select API</label>
+          <select class="xhe-input" id="api-select" data-testid="api-select" style="background: var(--bg-void);">
+            <optgroup label="Pulse API">
+              <option value="submitPulse">submitPulse()</option>
+              <option value="listenPulsar">listenPulsar()</option>
+            </optgroup>
+            <optgroup label="Identity API">
+              <option value="getDID">getDID()</option>
+              <option value="derivePolicyKey">derivePolicyKey()</option>
+            </optgroup>
+            <optgroup label="Storage API">
+              <option value="storeContent">storeContent()</option>
+              <option value="retrieveContent">retrieveContent()</option>
+            </optgroup>
+            <optgroup label="Karma API">
+              <option value="getKarma">getKarma()</option>
+              <option value="rewardKarma">rewardKarma()</option>
+            </optgroup>
+            <optgroup label="Governance API">
+              <option value="submitProposal">submitProposal()</option>
+              <option value="vote">vote()</option>
+            </optgroup>
+          </select>
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Parameters (JSON)</label>
+          <textarea class="xhe-textarea" id="api-params" data-testid="api-params-input"
+                    placeholder='{"key": "value"}'></textarea>
+        </div>
+        
+        <div class="flex gap-md">
+          <button class="xhe-btn xhe-btn--green" onclick="executeAPI()" data-testid="execute-api-btn">
+            Execute
+          </button>
+          <button class="xhe-btn" onclick="hideApiPlayground()" data-testid="close-playground-btn">
+            Close
+          </button>
+        </div>
+        
+        <div class="mt-lg">
+          <label class="xhe-label">Response</label>
+          <div class="xhe-code" id="api-response" style="min-height: 100px;">
+            <span class="text-muted">Response will appear here...</span>
+          </div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="api-docs-panel">
+        <h2 class="xhe-panel-title">Developer APIs</h2>
+        
+        <div class="mb-lg">
+          <h3 class="text-cyan mb-sm">Pulse API</h3>
+          <div class="xhe-code">
+// Submit a pulsar
+XheDevAPI.submitPulse({
+  appDid: "did:xhe:app:...",
+  policyKey: "key-id",
+  operations: [
+    { type: "DATA", payload: {...} }
+  ]
+});
+
+// Listen to pulsars
+XheDevAPI.listenPulsar({
+  types: ["state_change", "message"],
+  callback: (pulsar) => { ... }
+});</div>
+        </div>
+        
+        <div class="mb-lg">
+          <h3 class="text-cyan mb-sm">Identity API</h3>
+          <div class="xhe-code">
+// Get current DID
+const did = await XheDevAPI.getDID();
+
+// Derive scoped policy key
+const key = await XheDevAPI.derivePolicyKey({
+  appDid: "did:xhe:app:...",
+  capabilities: ["READ", "WRITE"]
+});</div>
+        </div>
+        
+        <div class="mb-lg">
+          <h3 class="text-cyan mb-sm">Storage API</h3>
+          <div class="xhe-code">
+// Store content
+const cid = await XheDevAPI.storeContent({
+  data: "Hello, sovereign world!",
+  type: "text/plain"
+});
+
+// Retrieve content
+const content = await XheDevAPI.retrieveContent({
+  cid: "Qm..."
+});</div>
+        </div>
+        
+        <div class="mb-lg">
+          <h3 class="text-cyan mb-sm">Karma API</h3>
+          <div class="xhe-code">
+// Get karma for a DID
+const karma = await XheDevAPI.getKarma(userDid);
+
+// Reward karma (requires KARMA_GRANT capability)
+await XheDevAPI.rewardKarma({
+  actorDid: senderDid,
+  targetDid: recipientDid,
+  reason: "contribution"
+});</div>
+        </div>
+        
+        <div>
+          <h3 class="text-cyan mb-sm">Governance API</h3>
+          <div class="xhe-code">
+// Submit proposal
+await XheDevAPI.submitProposal({
+  title: "Feature Request",
+  description: "Add new capability..."
+});
+
+// Vote on proposal
+await XheDevAPI.vote({
+  proposalId: "...",
+  weight: 1
+});
+
+// Select fork
+await XheDevAPI.selectFork({
+  forkId: "..."
+});</div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="capability-matrix-panel">
+        <h2 class="xhe-panel-title">Capability Matrix</h2>
+        <table class="xhe-table">
+          <thead>
+            <tr>
+              <th>Capability</th>
+              <th>Allowed Operations</th>
+              <th>Risk Level</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="xhe-tag xhe-tag--cyan">READ</span></td>
+              <td>Query ledger, fetch content, view karma</td>
+              <td><span class="text-green">LOW</span></td>
+            </tr>
+            <tr>
+              <td><span class="xhe-tag xhe-tag--cyan">WRITE</span></td>
+              <td>Submit pulsars, store content</td>
+              <td><span class="text-cyan">MEDIUM</span></td>
+            </tr>
+            <tr>
+              <td><span class="xhe-tag xhe-tag--cyan">SOCIAL_POST</span></td>
+              <td>Create posts, reply to threads</td>
+              <td><span class="text-cyan">MEDIUM</span></td>
+            </tr>
+            <tr>
+              <td><span class="xhe-tag xhe-tag--purple">KARMA_GRANT</span></td>
+              <td>Award karma to users</td>
+              <td><span class="text-purple">ELEVATED</span></td>
+            </tr>
+            <tr>
+              <td><span class="xhe-tag xhe-tag--purple">DELEGATE</span></td>
+              <td>Issue sub-policy keys</td>
+              <td><span class="text-purple">ELEVATED</span></td>
+            </tr>
+            <tr>
+              <td><span class="xhe-tag xhe-tag--red">ADMIN</span></td>
+              <td>Full system access</td>
+              <td><span class="text-red">HIGH</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="console-panel">
+        <h2 class="xhe-panel-title">Developer Console</h2>
+        <div class="xhe-console" id="xhe-console"></div>
+      </section>
+    </main>
+  </div>
+  
+  <script src="js/core.js"></script>
+  <script src="js/developer-api.js"></script>
+  <script>
+    function showRegisterApp() {
+      document.getElementById('register-app-section').style.display = 'block';
+    }
+    
+    function hideRegisterApp() {
+      document.getElementById('register-app-section').style.display = 'none';
+    }
+    
+    function showApiPlayground() {
+      document.getElementById('api-playground-section').style.display = 'block';
+    }
+    
+    function hideApiPlayground() {
+      document.getElementById('api-playground-section').style.display = 'none';
+    }
+    
+    async function registerApp() {
+      const name = document.getElementById('app-name').value.trim();
+      const description = document.getElementById('app-description').value.trim();
+      const url = document.getElementById('app-url').value.trim();
+      
+      if (!name) {
+        XheUtils.log('App name is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      const capabilities = [];
+      if (document.getElementById('cap-read').checked) capabilities.push('READ');
+      if (document.getElementById('cap-write').checked) capabilities.push('WRITE');
+      if (document.getElementById('cap-social').checked) capabilities.push('SOCIAL_POST');
+      if (document.getElementById('cap-karma').checked) capabilities.push('KARMA_GRANT');
+      if (document.getElementById('cap-storage').checked) capabilities.push('STORAGE');
+      
+      try {
+        const app = await XheDevAPI.registerApp({
+          name,
+          description,
+          url,
+          capabilities
+        });
+        
+        XheUtils.log(`App registered: ${name}`, 'success', 'xhe-console');
+        XheUtils.log(`App DID: ${app.did}`, 'info', 'xhe-console');
+        XheUtils.log(`Policy Key: ${XheUtils.formatHash(app.policyKeyId)}`, 'info', 'xhe-console');
+        
+        hideRegisterApp();
+        await refreshAppsList();
+        await loadStats();
+        
+        // Clear form
+        document.getElementById('app-name').value = '';
+        document.getElementById('app-description').value = '';
+        document.getElementById('app-url').value = '';
+        
+      } catch (error) {
+        XheUtils.log(`Error: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    async function refreshAppsList() {
+      const apps = await XheDevAPI.getRegisteredApps();
+      const container = document.getElementById('apps-list');
+      
+      if (apps.length === 0) {
+        container.innerHTML = '<p class="text-muted">No apps registered yet.</p>';
+        return;
+      }
+      
+      container.innerHTML = `
+        <table class="xhe-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>DID</th>
+              <th>Capabilities</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${apps.map(app => `
+              <tr data-testid="app-row-${app.did.slice(-8)}">
+                <td><span class="text-cyan">${app.name}</span></td>
+                <td><span class="text-secondary" style="font-size: 0.75rem;">${XheUtils.formatHash(app.did, 8)}</span></td>
+                <td>${app.capabilities.map(c => `<span class="xhe-tag" style="margin-right: 4px;">${c}</span>`).join('')}</td>
+                <td>
+                  <button class="xhe-btn" style="padding: 4px 8px; font-size: 0.75rem;"
+                          onclick="viewAppDetails('${app.did}')">
+                    Details
+                  </button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+    
+    async function viewAppDetails(appDid) {
+      const apps = await XheDevAPI.getRegisteredApps();
+      const app = apps.find(a => a.did === appDid);
+      
+      if (app) {
+        XheUtils.log(`=== App Details ===`, 'info', 'xhe-console');
+        XheUtils.log(`Name: ${app.name}`, 'info', 'xhe-console');
+        XheUtils.log(`DID: ${app.did}`, 'info', 'xhe-console');
+        XheUtils.log(`Policy Key: ${app.policyKeyId}`, 'info', 'xhe-console');
+        XheUtils.log(`Capabilities: ${app.capabilities.join(', ')}`, 'info', 'xhe-console');
+      }
+    }
+    
+    async function executeAPI() {
+      const apiName = document.getElementById('api-select').value;
+      const paramsStr = document.getElementById('api-params').value.trim();
+      const responseEl = document.getElementById('api-response');
+      
+      let params = {};
+      if (paramsStr) {
+        try {
+          params = JSON.parse(paramsStr);
+        } catch (e) {
+          responseEl.innerHTML = `<span class="text-red">Invalid JSON parameters</span>`;
+          return;
+        }
+      }
+      
+      XheUtils.log(`Executing ${apiName}...`, 'info', 'xhe-console');
+      
+      try {
+        let result;
+        
+        switch (apiName) {
+          case 'getDID':
+            result = await XheDevAPI.getDID();
+            break;
+          case 'getKarma':
+            result = await XheDevAPI.getKarma(params.did);
+            break;
+          case 'submitPulse':
+            result = await XheDevAPI.submitPulse(params);
+            break;
+          case 'storeContent':
+            result = await XheDevAPI.storeContent(params);
+            break;
+          case 'retrieveContent':
+            result = await XheDevAPI.retrieveContent(params);
+            break;
+          default:
+            result = { message: `API ${apiName} not yet implemented in playground` };
+        }
+        
+        responseEl.textContent = JSON.stringify(result, null, 2);
+        XheUtils.log(`${apiName} executed successfully`, 'success', 'xhe-console');
+        
+      } catch (error) {
+        responseEl.innerHTML = `<span class="text-red">Error: ${error.message}</span>`;
+        XheUtils.log(`Error: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    async function loadStats() {
+      const apps = await XheDevAPI.getRegisteredApps();
+      const keys = await xhePolicyKeys.getAllKeys();
+      const activeKeys = keys.filter(k => !k.revoked);
+      
+      document.getElementById('registered-apps').textContent = apps.length;
+      document.getElementById('active-policy-keys').textContent = activeKeys.length;
+      
+      // Count API calls from pulsars
+      const pulsars = await xheKernel.getAllPulsars();
+      const apiCalls = pulsars.filter(p => p.type.startsWith('API_')).length;
+      document.getElementById('total-api-calls').textContent = apiCalls;
+    }
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initXhe();
+      await loadStats();
+      await refreshAppsList();
+      XheUtils.log('Developer Portal initialized', 'info', 'xhe-console');
+    });
+  </script>
+</body>
+</html>

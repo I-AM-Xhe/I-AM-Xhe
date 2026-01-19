@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I·AM·Xhe — Kernel</title>
+  <link rel="stylesheet" href="css/core.css">
+</head>
+<body>
+  <div class="scanline-overlay"></div>
+  
+  <button class="mobile-toggle" onclick="XheNav.toggleMobileNav()" data-testid="mobile-nav-toggle">☰</button>
+  
+  <div class="xhe-shell">
+    <aside class="xhe-sidebar">
+      <a href="99-constitution.html" class="xhe-logo" data-testid="logo">I·AM·Xhe</a>
+      <nav class="xhe-nav" id="xhe-nav"></nav>
+    </aside>
+    
+    <main class="xhe-main" data-testid="kernel-main">
+      <header class="xhe-page-header">
+        <h1 class="xhe-page-title">00 — Kernel</h1>
+        <p class="xhe-page-subtitle">Deterministic execution, pulsars, append-only memory</p>
+      </header>
+      
+      <div class="xhe-alert" data-testid="kernel-info">
+        The kernel is the heart of I·AM·Xhe. It processes pulsars — canonical execution units that 
+        carry deterministic memory and are ordered solely by causal dependency.
+      </div>
+      
+      <section class="xhe-grid">
+        <div class="xhe-panel" data-testid="kernel-status-panel">
+          <h2 class="xhe-panel-title">Kernel Status</h2>
+          <div class="flex flex-col gap-md">
+            <div class="flex justify-between">
+              <span class="text-secondary">Status</span>
+              <span class="xhe-status xhe-status--active" id="kernel-status">Running</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">Total Pulsars</span>
+              <span class="text-cyan" id="pulsar-count">0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">Fuel Limit</span>
+              <span class="text-green">1,000,000</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-secondary">Execution Mode</span>
+              <span class="xhe-tag xhe-tag--cyan">DETERMINISTIC</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="xhe-panel" data-testid="pulsar-schema-panel">
+          <h2 class="xhe-panel-title">Pulsar Schema</h2>
+          <div class="xhe-code">
+{
+  "index": number,
+  "type": string,
+  "payload": object,
+  "parentHash": string | null,
+  "hash": string,
+  "fuel": number
+}</div>
+          <p class="text-muted mt-md" style="font-size: 0.75rem;">
+            Schema is canonical, frozen, and hash-sealed.
+          </p>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="create-pulsar-panel">
+        <h2 class="xhe-panel-title">Create Pulsar</h2>
+        <div class="xhe-form-group">
+          <label class="xhe-label">Pulsar Type</label>
+          <select class="xhe-input" id="pulsar-type" data-testid="pulsar-type-select" style="background: var(--bg-void);">
+            <option value="SYSTEM">SYSTEM</option>
+            <option value="IDENTITY">IDENTITY</option>
+            <option value="POLICY">POLICY</option>
+            <option value="DATA">DATA</option>
+            <option value="GOVERNANCE">GOVERNANCE</option>
+            <option value="CUSTOM">CUSTOM</option>
+          </select>
+        </div>
+        <div class="xhe-form-group">
+          <label class="xhe-label">Payload (JSON)</label>
+          <textarea class="xhe-textarea" id="pulsar-payload" data-testid="pulsar-payload-input" placeholder='{"action": "test", "value": 42}'></textarea>
+        </div>
+        <button class="xhe-btn xhe-btn--green" onclick="createPulsar()" data-testid="create-pulsar-btn">
+          Create Pulsar
+        </button>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="recent-pulsars-panel">
+        <h2 class="xhe-panel-title">Recent Pulsars</h2>
+        <div id="pulsars-list" class="flex flex-col gap-sm">
+          <p class="text-muted">No pulsars yet. Create one above.</p>
+        </div>
+        <div class="mt-md">
+          <button class="xhe-btn" onclick="refreshPulsars()" data-testid="refresh-pulsars-btn">
+            Refresh
+          </button>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="console-panel">
+        <h2 class="xhe-panel-title">Kernel Console</h2>
+        <div class="xhe-console" id="xhe-console"></div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="reality-model-panel">
+        <h2 class="xhe-panel-title">Pulsar-Based Reality Model</h2>
+        <div class="xhe-principle">
+          <h3 class="xhe-principle-title">There is no "now"</h3>
+          <p class="xhe-principle-text">
+            The system does not use time. It advances via pulsars — canonical execution units 
+            ordered solely by causal dependency. There is only <span class="text-cyan">before</span>, 
+            <span class="text-green">after</span>, and <span class="text-purple">because</span>.
+          </p>
+        </div>
+        <ul class="xhe-list mt-md">
+          <li class="xhe-list-item">
+            <span>Canonical execution units</span>
+            <span class="xhe-tag xhe-tag--cyan">PULSAR</span>
+          </li>
+          <li class="xhe-list-item">
+            <span>Deterministic memory carriers</span>
+            <span class="xhe-tag xhe-tag--green">MEMORY</span>
+          </li>
+          <li class="xhe-list-item">
+            <span>Hash-sealed and replay-safe</span>
+            <span class="xhe-tag xhe-tag--purple">SEALED</span>
+          </li>
+        </ul>
+      </section>
+    </main>
+  </div>
+  
+  <script src="js/core.js"></script>
+  <script>
+    async function createPulsar() {
+      const type = document.getElementById('pulsar-type').value;
+      const payloadStr = document.getElementById('pulsar-payload').value;
+      
+      try {
+        const payload = payloadStr ? JSON.parse(payloadStr) : {};
+        const pulsar = await xheKernel.createPulsar(type, payload);
+        
+        XheUtils.log(`Pulsar created: ${XheUtils.formatHash(pulsar.hash)}`, 'success', 'xhe-console');
+        refreshPulsars();
+        updateStats();
+        
+        document.getElementById('pulsar-payload').value = '';
+      } catch (error) {
+        XheUtils.log(`Error: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    async function refreshPulsars() {
+      const pulsars = await xheKernel.getLatestPulsars(10);
+      const container = document.getElementById('pulsars-list');
+      
+      if (pulsars.length === 0) {
+        container.innerHTML = '<p class="text-muted">No pulsars yet. Create one above.</p>';
+        return;
+      }
+      
+      container.innerHTML = pulsars.reverse().map(p => `
+        <div class="xhe-pulsar" data-testid="pulsar-${p.index}">
+          <span class="xhe-pulsar-index">${XheUtils.formatPulseIndex(p.index)}</span>
+          <span class="xhe-pulsar-type">${p.type}</span>
+          <span class="xhe-pulsar-hash">${XheUtils.formatHash(p.hash)}</span>
+        </div>
+      `).join('');
+    }
+    
+    async function updateStats() {
+      const count = await xheStorage.count('pulsars');
+      document.getElementById('pulsar-count').textContent = count;
+    }
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initXhe();
+      await refreshPulsars();
+      await updateStats();
+      XheUtils.log('Kernel initialized', 'info', 'xhe-console');
+    });
+  </script>
+</body>
+</html>

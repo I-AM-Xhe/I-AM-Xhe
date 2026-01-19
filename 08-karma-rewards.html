@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I·AM·Xhe — Karma & Rewards</title>
+  <link rel="stylesheet" href="css/core.css">
+</head>
+<body>
+  <div class="scanline-overlay"></div>
+  
+  <button class="mobile-toggle" onclick="XheNav.toggleMobileNav()" data-testid="mobile-nav-toggle">☰</button>
+  
+  <div class="xhe-shell">
+    <aside class="xhe-sidebar">
+      <a href="99-constitution.html" class="xhe-logo" data-testid="logo">I·AM·Xhe</a>
+      <nav class="xhe-nav" id="xhe-nav"></nav>
+    </aside>
+    
+    <main class="xhe-main" data-testid="karma-main">
+      <header class="xhe-page-header">
+        <h1 class="xhe-page-title">08 — Karma & Rewards</h1>
+        <p class="xhe-page-subtitle">Soul-bound merit accounting</p>
+      </header>
+      
+      <div class="xhe-alert" data-testid="karma-principle">
+        <strong>PRINCIPLE:</strong> Reputation is earned — non-transferable, non-financial, non-speculative.
+        Karma is soul-bound to identity and cannot be traded or delegated.
+      </div>
+      
+      <section class="xhe-grid">
+        <div class="xhe-panel" data-testid="your-karma-panel">
+          <h2 class="xhe-panel-title">Your Karma</h2>
+          <div class="flex flex-col items-center gap-md" style="padding: 2rem 0;">
+            <div class="text-cyan" style="font-size: 4rem; font-family: var(--font-heading);" id="karma-score">0</div>
+            <span class="text-secondary">Total Karma Points</span>
+            <div class="xhe-status xhe-status--active" id="karma-status">Active</div>
+          </div>
+        </div>
+        
+        <div class="xhe-panel" data-testid="karma-properties-panel">
+          <h2 class="xhe-panel-title">Karma Properties</h2>
+          <ul class="xhe-list">
+            <li class="xhe-list-item">
+              <span>Soul-bound</span>
+              <span class="xhe-tag xhe-tag--green">YES</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Transferable</span>
+              <span class="xhe-tag xhe-tag--red">NO</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Financial Value</span>
+              <span class="xhe-tag xhe-tag--red">NO</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Speculative</span>
+              <span class="xhe-tag xhe-tag--red">NO</span>
+            </li>
+            <li class="xhe-list-item">
+              <span>Auditable</span>
+              <span class="xhe-tag xhe-tag--green">YES</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="grant-karma-panel">
+        <h2 class="xhe-panel-title">Grant Karma</h2>
+        <p class="text-secondary mb-md">
+          Recognize contributions by granting karma to other identities.
+        </p>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Recipient DID</label>
+          <input type="text" class="xhe-input" id="karma-recipient" data-testid="karma-recipient-input"
+                 placeholder="did:xhe:...">
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Amount</label>
+          <input type="number" class="xhe-input" id="karma-amount" data-testid="karma-amount-input"
+                 value="1" min="1" max="100">
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Reason</label>
+          <select class="xhe-input" id="karma-reason" data-testid="karma-reason-select" style="background: var(--bg-void);">
+            <option value="contribution">Contribution</option>
+            <option value="helpfulness">Helpfulness</option>
+            <option value="governance">Governance Participation</option>
+            <option value="content">Quality Content</option>
+            <option value="code">Code Contribution</option>
+            <option value="community">Community Building</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        
+        <div class="xhe-form-group">
+          <label class="xhe-label">Note (optional)</label>
+          <input type="text" class="xhe-input" id="karma-note" data-testid="karma-note-input"
+                 placeholder="Optional description...">
+        </div>
+        
+        <button class="xhe-btn xhe-btn--green" onclick="grantKarma()" data-testid="grant-karma-btn">
+          Grant Karma
+        </button>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="karma-history-panel">
+        <h2 class="xhe-panel-title">Karma History</h2>
+        <div id="karma-history">
+          <p class="text-muted">No karma transactions yet.</p>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="leaderboard-panel">
+        <h2 class="xhe-panel-title">Karma Leaderboard</h2>
+        <p class="text-secondary mb-md">
+          Top contributors by earned karma. Rankings are public and auditable.
+        </p>
+        
+        <div id="karma-leaderboard">
+          <p class="text-muted">No karma recorded yet.</p>
+        </div>
+        
+        <button class="xhe-btn mt-md" onclick="refreshLeaderboard()" data-testid="refresh-leaderboard-btn">
+          Refresh Leaderboard
+        </button>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="karma-breakdown-panel">
+        <h2 class="xhe-panel-title">Karma Breakdown</h2>
+        <div id="karma-breakdown" class="xhe-grid">
+          <div class="flex justify-between">
+            <span class="text-secondary">Contributions</span>
+            <span class="text-green" id="karma-contributions">0</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-secondary">Helpfulness</span>
+            <span class="text-green" id="karma-helpfulness">0</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-secondary">Governance</span>
+            <span class="text-green" id="karma-governance">0</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-secondary">Content</span>
+            <span class="text-green" id="karma-content">0</span>
+          </div>
+        </div>
+      </section>
+      
+      <section class="xhe-panel mt-lg" data-testid="console-panel">
+        <h2 class="xhe-panel-title">Karma Console</h2>
+        <div class="xhe-console" id="xhe-console"></div>
+      </section>
+    </main>
+  </div>
+  
+  <script src="js/core.js"></script>
+  <script>
+    let currentDid = null;
+    
+    async function loadKarma() {
+      const identity = await xheIdentity.getCurrentIdentity();
+      
+      if (!identity) {
+        document.getElementById('karma-score').textContent = '—';
+        document.getElementById('karma-status').className = 'xhe-status xhe-status--warning';
+        document.getElementById('karma-status').textContent = 'No Identity';
+        XheUtils.log('Create an identity first to track karma', 'warn', 'xhe-console');
+        return;
+      }
+      
+      currentDid = identity.did;
+      const karma = await xheKarma.getKarma(currentDid);
+      
+      document.getElementById('karma-score').textContent = karma.score;
+      
+      // Calculate breakdown
+      const breakdown = { contribution: 0, helpfulness: 0, governance: 0, content: 0 };
+      karma.history.forEach(h => {
+        if (breakdown[h.reason] !== undefined) {
+          breakdown[h.reason] += h.amount;
+        }
+      });
+      
+      document.getElementById('karma-contributions').textContent = breakdown.contribution;
+      document.getElementById('karma-helpfulness').textContent = breakdown.helpfulness;
+      document.getElementById('karma-governance').textContent = breakdown.governance;
+      document.getElementById('karma-content').textContent = breakdown.content;
+      
+      loadKarmaHistory(karma.history);
+    }
+    
+    function loadKarmaHistory(history) {
+      const container = document.getElementById('karma-history');
+      
+      if (!history || history.length === 0) {
+        container.innerHTML = '<p class="text-muted">No karma transactions yet.</p>';
+        return;
+      }
+      
+      container.innerHTML = `
+        <table class="xhe-table">
+          <thead>
+            <tr>
+              <th>Amount</th>
+              <th>Reason</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${history.slice(-10).reverse().map((h, i) => `
+              <tr data-testid="karma-history-row-${i}">
+                <td><span class="${h.amount >= 0 ? 'text-green' : 'text-red'}">${h.amount >= 0 ? '+' : ''}${h.amount}</span></td>
+                <td><span class="xhe-tag">${h.reason.toUpperCase()}</span></td>
+                <td class="text-muted">${new Date(h.timestamp).toLocaleDateString()}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+    
+    async function grantKarma() {
+      const recipient = document.getElementById('karma-recipient').value.trim();
+      const amount = parseInt(document.getElementById('karma-amount').value) || 1;
+      const reason = document.getElementById('karma-reason').value;
+      const note = document.getElementById('karma-note').value.trim();
+      
+      if (!recipient) {
+        XheUtils.log('Recipient DID is required', 'error', 'xhe-console');
+        return;
+      }
+      
+      if (!recipient.startsWith('did:xhe:')) {
+        XheUtils.log('Invalid DID format', 'error', 'xhe-console');
+        return;
+      }
+      
+      try {
+        const karma = await xheKarma.addKarma(recipient, amount, reason);
+        
+        XheUtils.log(`Granted ${amount} karma to ${XheUtils.formatHash(recipient)}`, 'success', 'xhe-console');
+        XheUtils.log(`Reason: ${reason}${note ? ' - ' + note : ''}`, 'info', 'xhe-console');
+        
+        // Clear form
+        document.getElementById('karma-recipient').value = '';
+        document.getElementById('karma-amount').value = '1';
+        document.getElementById('karma-note').value = '';
+        
+        await refreshLeaderboard();
+        
+        // If granting to self, reload karma display
+        if (recipient === currentDid) {
+          await loadKarma();
+        }
+        
+      } catch (error) {
+        XheUtils.log(`Error: ${error.message}`, 'error', 'xhe-console');
+      }
+    }
+    
+    async function refreshLeaderboard() {
+      const leaderboard = await xheKarma.getLeaderboard(10);
+      const container = document.getElementById('karma-leaderboard');
+      
+      if (leaderboard.length === 0) {
+        container.innerHTML = '<p class="text-muted">No karma recorded yet.</p>';
+        return;
+      }
+      
+      container.innerHTML = `
+        <table class="xhe-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Identity</th>
+              <th>Karma</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${leaderboard.map((entry, i) => `
+              <tr data-testid="leaderboard-row-${i}">
+                <td><span class="text-cyan">#${i + 1}</span></td>
+                <td><span class="text-secondary">${XheUtils.formatHash(entry.did, 8)}</span></td>
+                <td><span class="text-green">${entry.score}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initXhe();
+      await loadKarma();
+      await refreshLeaderboard();
+      XheUtils.log('Karma module initialized', 'info', 'xhe-console');
+    });
+  </script>
+</body>
+</html>
