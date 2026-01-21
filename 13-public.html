@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I·AM·Xhe — Core Public Channels</title>
+  <link rel="stylesheet" href="css/core.css">
+  <style>
+    body { font-family: sans-serif; background: #0f0f0f; color: #e0e0e0; margin: 0; padding: 0; }
+    .container { max-width: 960px; margin: auto; padding: 2rem; }
+    h1 { color: #00ffff; }
+    section { margin-bottom: 2rem; border: 1px solid #222; padding: 1rem; border-radius: 8px; background: #1a1a1a; }
+    textarea, input { width: 100%; padding: 0.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem; border-radius: 4px; border: none; background: #222; color: #fff; }
+    button { padding: 0.5rem 1rem; border-radius: 4px; border: none; background: #00ffff; color: #000; cursor: pointer; }
+    .pulse { border-bottom: 1px solid #333; padding: 0.5rem 0; }
+    .identity { padding: 0.25rem 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>I·AM·Xhe — Core Public Channels</h1>
+    
+    <!-- Global Feed -->
+    <section id="global-feed-section">
+      <h2>Global Feed</h2>
+      <textarea id="global-post" placeholder="Post a message to the global feed..."></textarea>
+      <button onclick="postGlobal()">Post</button>
+      <div id="global-feed" style="margin-top:1rem;"></div>
+    </section>
+
+    <!-- Identity Discovery -->
+    <section id="identity-discovery-section">
+      <h2>Identity Discovery</h2>
+      <button onclick="refreshIdentities()">Refresh Active Identities</button>
+      <div id="identity-list" style="margin-top:1rem;"></div>
+    </section>
+
+    <!-- Collaboration Proposals -->
+    <section id="proposals-section">
+      <h2>Collaboration Proposals</h2>
+      <textarea id="proposal-content" placeholder="Propose a collaboration..."></textarea>
+      <button onclick="postProposal()">Submit Proposal</button>
+      <div id="proposal-feed" style="margin-top:1rem;"></div>
+    </section>
+  </div>
+
+  <script src="js/core.js"></script>
+  <script>
+    // --- Helper functions ---
+    async function renderGlobalFeed() {
+      const pulses = await xheKernel.getChannelPulses('global-feed') || [];
+      const feedDiv = document.getElementById('global-feed');
+      feedDiv.innerHTML = pulses.map(p => `<div class="pulse"><strong>${p.originDID}</strong>: ${p.content}</div>`).join('');
+    }
+
+    async function postGlobal() {
+      const content = document.getElementById('global-post').value.trim();
+      if (!content) return;
+      await xheKernel.createChannelPulse('global-feed', { content });
+      document.getElementById('global-post').value = '';
+      renderGlobalFeed();
+    }
+
+    async function refreshIdentities() {
+      const identities = await xheIdentity.getAllIdentities() || [];
+      const container = document.getElementById('identity-list');
+      container.innerHTML = identities.map(i => `<div class="identity">${i.did}</div>`).join('') || '<p>No identities found.</p>';
+    }
+
+    async function renderProposals() {
+      const pulses = await xheKernel.getChannelPulses('proposals') || [];
+      const feedDiv = document.getElementById('proposal-feed');
+      feedDiv.innerHTML = pulses.map(p => `<div class="pulse"><strong>${p.originDID}</strong>: ${p.content}</div>`).join('');
+    }
+
+    async function postProposal() {
+      const content = document.getElementById('proposal-content').value.trim();
+      if (!content) return;
+      await xheKernel.createChannelPulse('proposals', { content });
+      document.getElementById('proposal-content').value = '';
+      renderProposals();
+    }
+
+    // --- Initial load ---
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initXhe();
+      renderGlobalFeed();
+      renderProposals();
+      refreshIdentities();
+      console.log('Public channels module initialized.');
+    });
+  </script>
+</body>
+</html>
+
